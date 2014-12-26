@@ -1,0 +1,13 @@
+Порядок действий в простой программе Java
+
+1.Создать спринговский контекст в программе
+
+ApplicationContext context =
+    new ClassPathXmlApplicationContext(new String[] {"services.xml", "daos.xml"});
+
+2. получение ссылке на обьект в контейнере
+PetStoreService service = context.getBean("petStore", PetStoreService.class);
+
+3. использование обьекта
+List<String> userList = service.getUsernameList();
+
