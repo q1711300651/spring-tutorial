@@ -1,0 +1,65 @@
+Иньекция метода
+
+Существуют ситуации когда иньекция нового обекта из контейнера необходимя каждый раз при вызове метода.
+Для подобных ситуации используеться интерфейс ApplicationContextAware.
+
+Пример
+
+    public class CommandManager implements ApplicationContextAware {
+
+        private ApplicationContext applicationContext;
+
+        public Object process(Map commandState) {
+            // получение нового обьекта из контейнера
+            Command command = createCommand();
+            // выполнение нужных операций
+            command.setState(commandState);
+            return command.execute();
+        }
+
+        protected Command createCommand() {
+            // доступ к конейнеру сприга
+            return this.applicationContext.getBean("command", Command.class);
+        }
+
+        public void setApplicationContext(
+                ApplicationContext applicationContext) throws BeansException {
+            this.applicationContext = applicationContext;
+        }
+    }
+
+Подстоновка метода
+Lookup method injection - это способ динамически переопределить метод бина, что бы тот возвращал другой именной бин контейнера
+
+При этом класс или метода не должны быть final
+
+    // Больше нет зависимотси со спрингом
+    public abstract class CommandManager {
+
+        public Object process(Object commandState) {
+            Command command = createCommand();
+            command.setState(commandState);
+            return command.execute();
+        }
+
+        protected abstract Command createCommand();
+    }
+
+
+Для переопределение клиентского кода метод должен удовлетворять указанной форме:
+
+    <public|protected> [abstract] <return-type> theMethodName(no-arguments);
+
+В дескрипторе развертывания:
+    <!-- Нужно точно значть какой цикл жизни указывать для данного бина, используйте prototype только в
+    том случае когда он действительно нужен, иначе лушче singleton. В таком случае метод createCommand
+    всегда будет возращать один и тот же обьект-->
+    <bean id="command" class="fiona.apple.AsyncCommand" scope="prototype">
+    </bean>
+
+    <bean id="commandManager" class="fiona.apple.CommandManager">
+        <lookup-method name="createCommand" bean="command"/>
+    </bean>
+
+
+Таже сущеуствует еще одна форма иньекции метода Arbitrary method replacement

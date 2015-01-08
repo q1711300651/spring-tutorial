@@ -1,0 +1,13 @@
+Создать java.util.Properties в самом xml
+
+    <bean id="mappings" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+        <!-- Формирует бин типа java.util.Properties  -->
+        <property name="properties">
+            <value>
+                jdbc.driver.className=com.mysql.jdbc.Driver
+                jdbc.url=jdbc:mysql://localhost:3306/mydb
+            </value>
+        </property>
+    </bean>
+

@@ -1,4 +1,3 @@
-
 id ( name )
     Идентифицирует бин в контексте.
     Может быть больше чем один идентификатор ( только атрибут "name", имена разделены "," либо ";" )
@@ -10,42 +9,3 @@ class
     Для статических внуртенних классов используеться бинарное имя:
                     com.example.Foo$Bar,
     где
-
-factory-method
-    Предостовляет доступ к статическому методы класса, который возвращает обьект этого же класса:
-
-        <bean id="clientService" class="examples.ClientService" factory-method="createInstance"/>
-
-        public class ClientService {
-            ...
-             public static ClientService createInstance()
-            ...
-        }
-
-    Реализация не статичного фабричного метода. Используеться в основном для фабрик, где уже у готового
-    обьекта нужно получить другой обьект через метод:
-
-        Фабрика:
-        <bean id="serviceLocator" class="examples.DefaultServiceLocator">
-
-   Аттрибут "class" опускаеться, вместо него указываеться аттрибут "factory-bean" c ссылкой на бин
-   фабрики:
-        <bean id="clientService"
-            factory-bean="serviceLocator"
-            factory-method="createClientServiceInstance"/>
-
-
-####   Tags   #####
-
-constructor-arg
-    Тег в который указывает аргументы конструктора\фабричного метода. Совет: используй для обектов которые
-    должны быть в классе и скорее всего должны быть не изменяемые иначе лучше использовать property
-
-    ref - сылка на бин который нужно передать в качестве аргуманта для конструктора
-    type - указание простого типа для валидации аргументов
-    index - указываеь последовательность элементов
-    name - имя аргумента ( для работы с нужно компилировать в дебаг моде или укзать аннотацию
-           @ConstructorProperties. Пример: @ConstructorProperties({"years", "ultimateAnswer"}) )
-
-property
-    Внедрение зависмиости через сетер класса
