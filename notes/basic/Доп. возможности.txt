@@ -1,6 +1,16 @@
+PropertyPlaceholderConfigurer
+
 Создать java.util.Properties в самом xml
 
     <bean id="mappings" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+         <!-- Укзывать путь к настроечному файлу-->
+         <property name="locations" value="classpath:com/foo/jdbc.properties"/>
+    </bean>
+
+    <!-- Так же можно сформировать настроченый файл через префис контекст. Путей к фалам может быть несколько,
+    в таком случае они должны быть разделены запятыми в аттребуте  location -->
+
+    <context:property-placeholder location="classpath:com/foo/jdbc.properties"/>
 
         <!-- Формирует бин типа java.util.Properties  -->
         <property name="properties">
@@ -9,5 +19,31 @@
                 jdbc.url=jdbc:mysql://localhost:3306/mydb
             </value>
         </property>
+
+        <!--
+            Так же сразу можно использовать в том же конфигурационнм файл. ${jdbc.driverClassName}
+            будет ссылаться на соответвующий ключ в настроечном файле -->
+        <bean id="dataSource" destroy-method="close"
+                class="org.apache.commons.dbcp.BasicDataSource">
+            <property name="driverClassName" value="${jdbc.driverClassName}"/>
+            <property name="url" value="${jdbc.url}"/>
+        </bean>
+
     </bean>
+
+
+
+PropertyOverrideConfigurer
+Реализация подобная предедущей, но в отличии от формирования настроченого файла или окрытия доступа к парам ключ-значение этого файла,
+использует ключ как путь к полю бина а значение как значение поля.
+
+К примеру
+        dataSource.driverClassName=com.mysql.jdbc.Driver
+         ид бина    поле бина         значение
+
+Важно, данные значение могут быть простыми, они не ковертируються в ссылки на бины
+
+    <context:property-override location="classpath:override.properties"/>
+
+
 

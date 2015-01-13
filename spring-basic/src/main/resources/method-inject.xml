@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Пример реализации Иьекции методов -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="methodInjectCommand" class="my.spring.method.Command" scope="prototype"/>
+
+    <bean name="methodInject_1" class="my.spring.method.MethodInjectionSample_1" >
+        <lookup-method name="createCommand" bean="methodInjectCommand"/>
+    </bean>
+
+    <bean name="methodInject_2" class="my.spring.method.MethodInjectionSample_2" >
+        <lookup-method name="createCommand" bean="methodInjectCommand"/>
+    </bean>
+</beans>

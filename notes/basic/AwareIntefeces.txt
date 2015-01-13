@@ -1,0 +1,21 @@
+ApplicationContextAware
+    Реализация данного интерфейса позволяет бину получить доступ к контейнеру
+    ( подобным способом реализуется иньекцыия методов ). Но следует использовать с отсорожностью так как данный способ
+    формирует зависимость со спрингом и не следует прицнепу инвертирования зависимостей
+
+ApplicationEventPublisher
+
+BeanClassLoaderAware
+    Получить ссылку на класслодер контейнера
+
+BeanFactoryAware
+    Получить ссылку на фабрику бинов
+
+PortletContextAware, PortletConfigAware
+    используеться для среды портлетов
+
+ResourceLoaderAware
+    Получить низкоуровневый доступ к ресурсам
+
+ServletConfigAware, ServletContextAware
+    используеться в среде web-контейнера и Spring-WVC
