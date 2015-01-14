@@ -1,25 +1,169 @@
-Конструтор
 
+<context:annotation-config/> - тег в контексте, указывающий на автоопредление аннотаций и формирования контекста для них
+Важно, что для контеста веб приложеня данный тэг проверят только @Autowired
+
+
+
+------------------------------------------------------------------------------------------------------------------------
 
 @ConstructorProperties - аннотация представлет собой стек названий аргументов в контруторе/фабричном метода для
                          внедрение зависимости через имя аргумента
 
-
-
-Сеттер/Геттер
+------------------------------------------------------------------------------------------------------------------------
 
 @Required - аннотация указывает на свойство, которое обязательно должно быть заполененно.
 
+------------------------------------------------------------------------------------------------------------------------
 
-
-
-
-Аннотация @Autowired отмечает конструктор, поле или метод как требующий автозаполнения инъекцией зависимости Spring.
+@Autowired или @Inject - отмечаеткак требующий автозаполнения внедрение зависимости Spring.
 
 Используя эту аннотацию, не нужно заботиться о том, как лучше всего передать классу или bean'у экземпляр другого bean'a.
 Фреймворк Spring сам найдет нужный bean и подставит его значение в свойство, которое отмечено аннотацией @Autowired.
 
+Пример для сеттера:
 
+     @Autowired
+        public void setMovieFinder(MovieFinder movieFinder) {
+            this.movieFinder = movieFinder;
+        }
+
+Пример для метода, Конструтора:
+
+    @Autowired
+    public void prepare(MovieCatalog movieCatalog, CustomerPreferenceDao customerPreferenceDao) {
+        this.movieCatalog = movieCatalog;
+        this.customerPreferenceDao = customerPreferenceDao;
+    }
+
+Пример для поля:
+
+    @Autowired
+    private MovieFinder movieFinder;
+
+Таже возможно внедрить все бины, одного типа в поле массив
+
+     @Autowired
+     private MovieCatalog[] movieCatalogs;
+
+или для коллекций
+
+     private Set<MovieCatalog> movieCatalogs;
+        @Autowired
+        public void setMovieCatalogs(Set<MovieCatalog> movieCatalogs) {
+            this.movieCatalogs = movieCatalogs;
+        }
+
+Или даже Карты, где ключом обязательно должнен быть тип Строки, где будет имя бина, а значение типа:
+
+
+     @Autowired
+        public void setMovieCatalogs(Map<String, MovieCatalog> movieCatalogs) {
+            this.movieCatalogs = movieCatalogs;
+        }
+
+
+
+Также можно использовать Autowired для внедрение стандартного интерфейся спринга ( BeanFactory,  ApplicationContext,
+    Environment,  ResourceLoader, ApplicationEventPublisher,  and  MessageSource)
+
+     @Autowired
+     private ApplicationContext context;
+
+
+Параметры
+
+    required - по умаолчанию Autowired падает, когда не находит нужный тип для внедрение, это поведение можно изменить
+               указав false в данный параметр
+                    @Autowired(required=false)
+
+
+Важно
+@Autowired,  @Inject,  @Resource,  and  @Value - используют страндартную BeanPostProcessor реализвацю, что значит что они
+неподдерживают собственные  BeanPostProcessor or BeanFactoryPostProcessor типы, используйте xml или java конфигурацию
+
+------------------------------------------------------------------------------------------------------------------------
+
+@Qualifier
+
+    Из-за того что Autowired может найти несколько кандидатов на указанный тип в бине, для уточнения испольуется Qualifier:
+
+        @Autowired
+        @Qualifier("main")
+        private MovieCatalog movieCatalog;
+
+        или для аргумента
+
+        @Autowired
+        public void prepare(@Qualifier("main")MovieCatalog movieCatalog...
+
+        Qualifier - это не сслыка на id бина, а лишь совпадение с ним, правельным решением использования будет
+        применять имена для id и Qualifier, какхарастиристика, к примеру main или persistent:
+
+             <bean class="example.SimpleMovieCatalog">
+                    <qualifier value="main"/>
+             </bean>
+
+        Так же с помошью Qualifier, можно соберать подгрупу бинов в коллекции, которые совпадают с указанным qualifier
+
+
+    Можно создасть собственный квалификатор
+
+    @Qualifier
+    public @interface Genre {
+        String value(); // Можно и без параметров, квалифицируя только по типу
+
+        Format format(); // Или же добовлять собственные,
+
+    }
+    ....
+    @Autowired @Genre("Action")
+    private MovieCatalog actionCatalog;
+    ...
+    <bean class="example.MovieCatalog">
+         <qualifier type="Genre" value="Action">
+             <attribute key="format" value="VHS"/> <!-- Тогда нужно добавит под-тэг в квалификатор -->
+         </qualifier>
+    </bean>
+
+
+
+    Использования дженериков, в качетсве квалификаторов:
+
+    Скажем интерфейс Store<T> имеет два дочерних интерфейсов StringStore extend Store<String> и
+        IntegerStore extend Store<Integer>, тогда в с java контекстов, будет выглядить так:
+
+            @Configuration
+            public class MyConfiguration {
+                @Bean public StringStore stringStore() { return new StringStore(); }
+                @Bean public IntegerStore integerStore() { eturn new IntegerStore(); }
+            }
+            ...
+            @Autowired
+            private Store<String> s1; // <String> квалификатор, внедряет stringStore бин
+            @Autowired
+            private Store<Integer> s2; // <Integer>  квалификатор, внедряет integerStore бин
+            @Autowired
+            private List<Store<Integer>> s; // работает и с коллекцией, картой, последовательностью
+
+
+    Для регистрации квалификаторов без аннотации используеться CustomAutowireConfigurer:
+
+        <bean id="customAutowireConfigurer"
+                class="org.springframework.beans.factory.annotation.CustomAutowireConfigurer">
+            <property name="customQualifierTypes">
+                <set>
+                    <value>example.CustomQualifier</value>
+                </set>
+            </property>
+        </bean>
+
+
+------------------------------------------------------------------------------------------------------------------------
 
 @PostConstruct, @PreDestroy - Аннотации для вызова методов на события жизненого цикла обьект
                                         (после создания, перед удалением, соотвественно )
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+@Order или @Priority - указывает бину какой порядок ему принемать к коллекции/массиве
