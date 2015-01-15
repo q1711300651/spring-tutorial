@@ -1,3 +1,114 @@
+id ( name )
+    Идентифицирует бин в контексте.
+    Может быть больше чем один идентификатор ( только атрибут "name", имена разделены "," либо ";" )
+    Параметр не обязательный, но нужен для ссылки на этот бин из другого бина
+    Поддерживаемые символы: [a-zA-z] + спец сиволы
+
+class
+    Предоставляет контейнеру доступ к конретному java классу.
+    Для статических внуртенних классов используеться бинарное имя:
+                    com.example.Foo$Bar,
+    где
+
+
+factory-method
+    Предостовляет доступ к статическому методы класса, который возвращает обьект этого же класса:
+
+        <bean id="clientService" class="examples.ClientService" factory-method="createInstance"/>
+
+        public class ClientService {
+            ...
+             public static ClientService createInstance()
+            ...
+        }
+
+    Реализация не статичного фабричного метода. Используеться в основном для фабрик, где уже у готового
+    обьекта нужно получить другой обьект через метод:
+
+        Фабрика:
+        <bean id="serviceLocator" class="examples.DefaultServiceLocator">
+
+   Аттрибут "class" опускаеться, вместо него указываеться аттрибут "factory-bean" c ссылкой на бин
+   фабрики:
+        <bean id="clientService"
+            factory-bean="serviceLocator"
+            factory-method="createClientServiceInstance"/>
+
+
+depends-on
+    Аттрибут depends-on необходим для указание контейнеру, что для загрузки данного бина сперва нужно загрузить
+    укзанный в атрибуте
+
+        Пример:
+            <bean id="beanOne" class="ExampleBean" depends-on="manager"/>
+            <bean id="manager" class="ManagerBean" />
+
+lazy-init
+    Аттрибут lazy-init нужен для указание контейнеру, что инициализация данного бина будет проведене, только если этот
+    бин востребуеться системой
+    Пример:
+        <bean id="lazy" class="com.foo.ExpensiveToCreateBean" lazy-init="true"/>
+
+default-lazy-init
+    Укзывать на уровне контекста, о моменте инициалиации, сразу или по востребованию.
+
+        <beans default-lazy-init="true">
+            <!-- Не один бин не будет сразу инициализировани -->
+        </beans>
+
+Пример инициализации бинов
+
+Через сеттер
+
+<bean id="exampleBean" class="examples.ExampleBean">                    public class ExampleBean {
+
+    <!-- инициализация бина через тег -->                                   private AnotherBean beanOne;
+    <property name="beanOne">                                               private YetAnotherBean beanTwo;
+        <ref bean="anotherExampleBean"/>                                    private int i;
+    </property>
+                                                                            public void setBeanOne(AnotherBean beanOne) {
+    <!-- а тут через аргумент -->                                               this.beanOne = beanOne;
+    <property name="beanTwo" ref="yetAnotherBean"/>                         }
+
+    <property name="integerProperty" value="1"/>                            public void setBeanTwo(YetAnotherBean beanTwo) {
+</bean>                                                                         this.beanTwo = beanTwo;
+                                                                            }
+<bean id="anotherExampleBean" class="examples.AnotherBean"/>                public void setIntegerProperty(int i) {
+<bean id="yetAnotherBean" class="examples.YetAnotherBean"/>                      this.i = i;
+                                                                            }
+                                                                        }
+
+Конструктор
+
+<bean id="exampleBean" class="examples.ExampleBean">                    public class ExampleBean {
+
+     <!-- использования дочернего тега -->                                  private AnotherBean beanOne;
+     <property name="beanOne">                                              private YetAnotherBean beanTwo;
+         <ref bean="anotherExampleBean"/>                                   private int i;
+     </property>
+                                                                            public ExampleBean(
+     <!-- использование аттрибута  -->                                          AnotherBean anotherBean, YetAnotherBean yetAnotherBean, int i) {
+     <property name="beanTwo" ref="yetAnotherBean"/>                            this.beanOne = anotherBean;
+     <property name="integerProperty" value="1"/>                               this.beanTwo = yetAnotherBean;
+ </bean>                                                                        this.i = i;
+                                                                            }
+ <bean id="anotherExampleBean" class="examples.AnotherBean"/>
+ <bean id="yetAnotherBean" class="examples.YetAnotherBean"/>
+
+
+Фабричный метод
+
+
+<bean id="exampleBean" class="examples.ExampleBean" factory-method="createInstance">    public class ExampleBean {
+    <constructor-arg ref="anotherExampleBean"/>                                                 private ExampleBean(...) { ... }
+    <constructor-arg ref="yetAnotherBean"/>                                                     public static ExampleBean createInstance (
+    <constructor-arg value="1"/>                                                                      AnotherBean anotherBean, YetAnotherBean yetAnotherBean, int i) {
+</bean>                                                                                               ExampleBean eb = new ExampleBean (...);
+<bean id="anotherExampleBean" class="examples.AnotherBean"/>                                          ...
+<bean id="yetAnotherBean" class="examples.YetAnotherBean"/>                                           return eb;
+                                                                                                }
+                                                                                         }
+
 constructor-arg
     Тег в который указывает аргументы конструктора\фабричного метода. Совет: используй для обектов которые
     должны быть в классе и скорее всего должны быть не изменяемые иначе лучше использовать property
@@ -8,10 +119,8 @@ constructor-arg
     name - имя аргумента ( для работы с нужно компилировать в дебаг моде или укзать аннотацию
            @ConstructorProperties. Пример: @ConstructorProperties({"years", "ultimateAnswer"}) )
 
-
-
 property
-    Внедрение зависмиости через сетер класса
+   Тег, что внедреняет зависмиости через сетер класса
 
 Аттрибуты и Параметры:
     1. value - принемает занчение в удобочетаемом строковом представлении

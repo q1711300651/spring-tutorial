@@ -1,0 +1,21 @@
+Использования мета-аннотаций позволяет создовать собстевнные простые или комбинированые аннотации:
+
+    @Target({ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @Component // Анноатция @Component, являеться мета-аннотацией, что как бы формирует родителя для аннотации  Service
+    public @interface Service {
+        // ....
+    }
+
+
+    // Или подобная анноатция SessionScope уточняет аннотацию Scope указывая имя session и определяя собственный
+    // параметр proxyMode
+    @Target({ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @Scope("session")
+    public @interface SessionScope {
+        ScopedProxyMode proxyMode() default ScopedProxyMode.DEFAULT
+    }
+

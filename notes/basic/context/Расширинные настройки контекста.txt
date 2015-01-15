@@ -1,0 +1,28 @@
+<context:annotation-config/> - тег в контексте, указывающий на автоопредление аннотаций и формирования контекста для них
+Важно, что для контеста веб приложеня данный тэг проверят только @Autowired
+
+<context:component-scan base-package="..."/>
+    Используеться для сканирования пакетов на предмет поиска аннотированных бинов спринга.
+    Использования этого тега, обычно автоматически подключает и <context:annotation-config/>, так что нет нужды
+    вписывать в xml и <context:annotation-config/>
+
+    Так же есть возможность исключать или включать классы из/в сканирования пакета используя фильтры
+
+    annotation ( по умолчанию ) - анноатация, что должна присуствовать в целевом классе. Пример: org.example.SomeAnnotation
+                                  Можно отключить этот фильтр, используя use-default-filters="false", таким образом
+                                  не будут принематься все классы аннотированные с @Component, @Repository,
+                                  @Service, or @Controller
+    assignable - класс или интерфейс что явялеються или рассширяют целевой класс. Пример: org.example.SomeClass
+    aspectj - классы, которые удовлетворяют выражение aspectj. Пример: org.example..*Service+
+    regex - имена классов, которые удовлетворяют регуларное выражение. Пример: org\.example\.Default.*
+    custom - сосбтвенноя реализация фильтра. Пример: org.example.MyTypeFilter
+
+        <beans>
+            <context:component-scan base-package="org.example">
+                <context:include-filter type="regex"
+                        expression=".*Stub.*Repository"/>
+                <context:exclude-filter type="annotation"
+                        expression="org.springframework.stereotype.Repository"/>
+            </context:component-scan>
+        </beans>
+
