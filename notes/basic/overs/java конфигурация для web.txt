@@ -1,0 +1,47 @@
+Для работы в WEB приложении через ContextLoaderListener, пример:
+
+<web-app>
+    <!-- Конфигурация ContextLoaderListener для испозовать AnnotationConfigWebApplicationContext
+        вместо стандартного XmlWebApplicationContext -->
+    <context-param>
+        <param-name>contextClass</param-name>
+        <param-value>
+            org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+        </param-value>
+    </context-param>
+
+    <!-- Настройка локаций, где перебор нескольких классов выполняеться черех запятую- или пробел- сепаратор
+        полный путь к @Configuration классу или полный путь до сканирования паккета  -->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>com.acme.AppConfig</param-value>
+    </context-param>
+
+    <!-- запуск  ContextLoaderListener -->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
+    <!--  Spring MVC DispatcherServlet -->
+    <servlet>
+        <servlet-name>dispatcher</servlet-name>
+
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+
+        <!-- Настройка DispatcherServlet для использования  AnnotationConfigWebApplicationContext вместо XmlWebApplicationContext -->
+        <init-param>
+            <param-name>contextClass</param-name>
+            <param-value>
+                org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+            </param-value>
+        </init-param>
+        <!-- Опять путь к классу или к пакету -->
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>com.acme.web.MvcConfig</param-value>
+        </init-param>
+    </servlet>
+
+    <!-- .... -->
+
+</web-app>
