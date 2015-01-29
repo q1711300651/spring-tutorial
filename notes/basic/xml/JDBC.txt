@@ -1,0 +1,8 @@
+xmlns:jdbc="http://www.springframework.org/schema/jdbc
+
+Форирование дата сорса для встроенной базы
+
+<jdbc:embedded-database id="dataSource">
+            <jdbc:script location="classpath:com/bank/config/sql/schema.sql"/>
+            <jdbc:script location="classpath:com/bank/config/sql/test-data.sql"/>
+</jdbc:embedded-database>

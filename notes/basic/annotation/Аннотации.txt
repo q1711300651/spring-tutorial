@@ -319,6 +319,48 @@
 
  Частный случай @Conditional, принемает текстовый парметр, и ищеет на соответсвие в доступных параметрах среды.
 
+ Эта функциональность, полезна при запуске нескольких разных бинов, одного типа, к примеру для продуктива или девелопа:
+
+        @Configuration
+        @Profile("dev")
+        public class StandaloneDataConfig {
+            @Bean
+            public DataSource dataSource() {
+                return new EmbeddedDatabaseBuilder()
+                    .setType(EmbeddedDatabaseType.HSQL)
+                    .addScript("classpath:com/bank/config/sql/schema.sql")
+                    .addScript("classpath:com/bank/config/sql/test-data.sql")
+                    .build();
+            }
+        }
+
+        @Configuration
+        @Profile("production")
+        public class JndiDataConfig {
+            @Bean
+            public DataSource dataSource() throws Exception {
+                Context ctx = new InitialContext();
+                return (DataSource) ctx.lookup("java:comp/env/jdbc/datasource");
+            }
+        }
+
+   Профайлер может быть и мето-аннотацией:
+
+   @Target(ElementType.TYPE)
+   @Retention(RetentionPolicy.RUNTIME)
+   @Profile("production")
+   public @interface Production {
+   }
+
+   теперь @Production = @Profile("production")
+
+   Если @Profile("production") помечен @Profile, все методы @Bean и @Import будут проверяться на условие, если в
+   других конфигурациях нет своего @Profile
+
+   Так же можно указывать множественные свойства: @Profile({"p1", "p2"}), озночает что бин будет активирован только
+   если p1 и/или p2 активны
+   Отрицание: @Profile({"p1", "!p2"}) = региттсрация бина будет выполненна если p1 активна или p2 не активна
+
 
 ------------------------------------------------------------------------------------------------------------------------
 

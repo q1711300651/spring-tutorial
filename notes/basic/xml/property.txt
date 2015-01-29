@@ -1,0 +1,182 @@
+Параметры настройки тега property
+
+########################################################################################################################
+Аттрибуты
+
+------------------------------------------------------------------------------------------------------------------------
+  name=[propertyName] - имя свойства бина
+
+   Композиционное имя свойства бина
+   Можно указывать свойства своайсва бина, если имя будет через точку в названии, т. е:
+        <bean id="foo" class="foo.Bar">
+            <property name="fred.bob.sammy" value="123" />
+        </bean>
+   Где значение 123 присваеваеться к свойству sammy у обьекта bob, что в свою очередь являеться
+   свойством обьекта fred, который являеться свойстом данного бина.
+   Если цепоча не верна будет брошена NullPointerException
+
+------------------------------------------------------------------------------------------------------------------------
+
+value - принемает занчение в удобочетаемом строковом представлении
+
+    Пример
+        <bean id="myDataSource" ... >
+            <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+            ....
+        </bean>
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+ ref -  Формирует зависимость с другим бином, путем передачи ссылки на него через идентификатор.
+
+   Пример
+        <ref bean="someBean"/>
+
+   Аттрибут parent, используеться когда нужно указать на бин с тем же именем, только в радительском контейнере.
+
+   Пример:
+        <!-- Тут контекст радителького контейнера -->
+        <bean id="accountService" class="com.foo.SimpleAccountService">
+            <!-- ... -->
+        </bean>
+
+        <!-- Тут контекст дочернего контейнера -->
+        <bean id="accountService" <!-- бин назван также как и в родительском -->
+            class="org.springframework.aop.framework.ProxyFactoryBean">
+            <property name="target">
+                <ref parent="accountService"/> <!-- формирует ссылку на бин в родительском контейнере -->
+            </property>
+            <!-- ... -->
+        </bean>
+
+########################################################################################################################
+
+Дочерние теги
+
+------------------------------------------------------------------------------------------------------------------------
+
+idref - тег, простой и безопасный способ передать идентификатор ( не ссылку на бин ).
+
+   Пример
+        <bean id="theTargetBean" class="..."/>
+        <bean id="theClientBean" class="...">
+            <property name="targetName">
+                <idref bean="theTargetBean" />
+            </property>
+        </bean>
+
+        Способ через value
+        <bean id="theTargetBean" class="..." />
+        <bean id="client" class="...">
+            <property name="targetName" value="theTargetBean" />
+        </bean>
+
+------------------------------------------------------------------------------------------------------------------------
+
+bean
+
+   Вложенный бин
+        Используеться когда нужно указать зависимость, где больше нигде кроме этого бина не используется
+        Данный способ игнорирует атрибуты scope, id, name во вложенном бине.
+
+   Пример
+        <bean id="outer" class="...">
+            <!-- Вместо использования сслки на нужный бин, просто выпешите его внутри property -->
+            <property name="target">
+                <bean class="com.example.Person"> <!-- this is the inner bean -->
+                    <property name="name" value="Fiona Apple"/>
+                    <property name="age" value="25"/>
+                </bean>
+            </property>
+        </bean>
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+Collections - В <list/>, <set/>, <map/>, и <props/> можно указать элементы для Java коллекций тип
+   List, Set, Map, и Properties, соответсвенно:
+
+    <property name="...">
+
+        <props>
+            <prop key="custom_key">custom_value</prop>
+        </props>
+
+        <list>
+            <value>...</value>
+                или
+            <ref bean="...">
+        </list>
+
+        <map>
+            <entry key="an entry" value="just some string"/>
+                или
+            <entry key ="a ref" value-ref="..."/>
+        </map>
+
+        <set>
+            <value>...</value>
+                или
+            <ref bean="...">
+        </set>
+    </property>
+
+    Значение карты или ключ, или значение set, list может принемать следующие формы:
+        bean (внутренний бин) | ref(сслыка) | idref(идентификатор) | list( внутренний лист) |
+        set ( внутрение перечисление ) | map ( внутрения карта)  | props ( внутриня карта параметров ) |
+        value(значение) | null
+
+
+   Слияние коллеций - Spring позволяет сливать коллеция из родительских бинов с дочерними,
+   реузльтат будет присвоен дочернему бину
+
+   <beans>
+       <bean id="parent" abstract="true" class="example.ComplexObject">
+           <property name="adminEmails">
+               <props>
+                   <prop key="administrator">administrator@example.com</prop>
+                   <prop key="support">support@example.com</prop>
+               </props>
+           </property>
+       </bean>
+
+       <bean id="child" parent="parent">
+           <property name="adminEmails">
+               <!-- аттрибут merge="true" указывает конейнеру на слияние из свойства дочернего и родительского -->
+               <props merge="true">
+                   <prop key="sales">sales@example.com</prop>
+                   <prop key="support">support@example.co.uk</prop>
+               </props>
+           </property>
+       </bean>
+   <beans>
+
+   Properties дочернего бина наследует все елементы родительского переопределяя значение в родительской коллекции
+   Вывод
+       administrator=administrator@example.com
+       sales=sales@example.com
+       support=support@example.co.uk
+
+   Ограничения слияния:
+        1. Нельзя выполнить слияние разных типов коллеций
+        2. Аттриьут слияние должен быть указан в дочерней коллекции
+
+########################################################################################################################
+
+
+   Сокращенное обявление
+
+   Используя префикс "p:" можно обьявлять параметры в качестве аттрибутов а не дочерних тегов.
+
+   Пример:
+       <beans ... xmlns:p="http://www.springframework.org/schema/p" ... >
+           ...
+           <!-- Простой обьевление параметры с строковым значением -->
+           <bean id="myDataSource" ... p:driverClassName="com.mysql.jdbc.Driver" ... />
+
+           <!-- Обьевление ссылки на бин выполняеться по шаблону "имя параметра-ref" -->
+            <bean name="john-modern"
+            class="com.example.Person" p:name="John Doe" p:spouse-ref="jane"/>
+
+       </beans>
