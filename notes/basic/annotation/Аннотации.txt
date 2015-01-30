@@ -371,3 +371,27 @@
 
 
 ------------------------------------------------------------------------------------------------------------------------
+
+@PropertySource
+
+    Аннотация предостовляет деклератиный механизм для добовление файла настроек к Spring’s Environment:
+
+
+        @Configuration
+        @PropertySource("classpath:/com/myco/app.properties")
+
+        Такж как можно изспользовать EL ${..}, для получние параметров из существующих настроек:
+        @PropertySource("classpath:/com/${my.placeholder:default/path}/app.properties"), где
+
+
+        public class AppConfig {
+
+            @Autowired
+            Environment env;
+            @Bean
+            public TestBean testBean() {
+                TestBean testBean = new TestBean();
+                testBean.setName(env.getProperty("testbean.name"));
+                return testBean;
+            }
+        }
