@@ -9,7 +9,7 @@ import org.springframework.core.env.Environment;
 import javax.inject.Inject;
 
 @Configuration
-// получить источник настроек по динамически форировнному пути
+// получить источник настроек по динамически формировнному пути
 @PropertySource( "classpath:${default.property.source}/include.properties" )
 public class AppConfig {
 
