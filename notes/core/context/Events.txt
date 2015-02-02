@@ -1,0 +1,16 @@
+ApplicationContext представляет несколько обработиков собыйтий класс ApplicationEvent и интерфейс ApplicationListener
+
+Если бин реализует ApplicationListener, тогда он загружаеться в контекст, каждый раз когда ApplicationEvent
+генерируеться ApplicationContext.
+
+Событие                                 |  Описание
+ContextRefreshedEvent                   |  Вызываеться когда контекст инициализируеться
+                                        |  или когда обновляеться ( метод refresh() )
+                                        |
+ContextStartedEvent                     |  Вызываеться когда ApplicationContext страртует, используя метод start()
+                                        |  "Started" озночает что все бины жизненного цикла стартовали
+                                        |
+ContextClosedEvent                      | Вызываеться когда, контейнер прекращает работу
+                                        |
+RequestHandledEvent                     | Вызываеться когда, HTTP запрос принят. Это событие публикуеться после
+                                        | обработки запроса, и работает только в web среде через DispatcherServlet
