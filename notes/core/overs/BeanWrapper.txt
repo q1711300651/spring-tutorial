@@ -1,0 +1,151 @@
+BeanWrapper
+    Позволяет устанавливать значение для свойств бинов, получать описание свойств, и выделять свойства на
+    читаемые/записываемые. Также предосовляет возможность поиска свойств в глубину, свойст обьектов.
+    Так же возможность добавлять стандартные PropertyChangeListeners и VetoableChangeListeners к бинам.
+    Так же позволяет индекстировать свойства.
+    Обычно не используеться на прямую, только через DataBinder и BeanFactory
+
+Пример указание и получение свойств:
+
+    name                    ->     getName()/setName(...)
+    account.name            ->     getAccount().getName() / getAccount().setName()
+    account[2]              ->     указывает на третий елемент индексированного свойтсва ( Array,Collection, List)
+    account[COMPANYNAME]    ->     доступ к значение свойства Карты
+
+
+PropertyEditor
+
+    Спринг использует концепцию Настройщик Свойств для эффективной ковертации Обьекта в Строку. Это особенность
+    полезна когда необходимо иметь разные строковые представление для одного обьекта, скажем разный формат дат для
+
+    Некторорые возможности:
+
+            1.Указав значением свойства строку для бина указанного в xml, Спринг, если сеттер свойства имеет аргумент
+              тип Class, может использовать ClassEditor, что бы сфорировать обьект класс
+            2.Парсинг параметров HTTP запроса в Спринг MVC использует все виды PropertyEditors, и свои если
+              зарегестрировать их во всех под-классах CommandController
+
+    Виды:
+
+        ByteArrayPropertyEditor     строка, просто переводиться в массив байтов
+
+        ClassEditor                 переводит строку в обьект класса, если не нашел то IllegalArgumentException
+
+        CustomBooleanEditor         ковертирует булевые значения
+
+        CustomCollectionEditor      коллекции
+
+        CustomDateEditor            конвертирует в java.util.Date, поддерживает DateFormat. Не зарегестрирован
+                                    по умолчанию в BeanWrapper
+
+        CustomNumberEditor          Integer, Long, Float, Double
+
+        FileEditor                  java.io.File
+
+        InputStreamEditor           конвертирует строку в InputStream
+
+        LocaleEditor                Локаль
+
+        PatternEditor               в пттерн regExp
+
+        PropertiesEditor
+
+        StringTrimmerEditor         Удаляет пробелы, null вместо пустых строк. Не зарегестрированпо по умолчанию в BeanWrapper
+
+        URLEditor                   URL
+
+
+    Подключение:
+
+
+        Автоматически подключаеться если находиться в том же пакете где и класс который они обрабатывает, и с названием
+        в котором добавленно в конце "Editor":
+
+            some
+                package
+                    Foo
+                    FooEditor
+
+    Так же можно использовать стандартный механизм BeanInfo, для регестрации несколких Editor
+
+            some
+                  package
+                      Foo
+                      FooBeanInfo
+
+
+          public class FooBeanInfo extends SimpleBeanInfo {
+              public PropertyDescriptor[] getPropertyDescriptors() {
+                  try {
+                      final PropertyEditor numberPE = new CustomNumberEditor(Integer.class, true);
+                      PropertyDescriptor ageDescriptor = new PropertyDescriptor("age", Foo.class) {
+                          public PropertyEditor createPropertyEditor(Object bean) {
+                              return numberPE;
+                          };
+                      };
+                      return new PropertyDescriptor[] { ageDescriptor };
+                  }
+                  catch (IntrospectionException ex) {
+                      throw new Error(ex.toString());
+                  }
+              }
+          }
+
+    Спринг реализует собственных механиз регестрации Editor через CustomEditorConfigurer:
+
+
+    public class ExoticTypeEditor extends PropertyEditorSupport {
+        public void setAsText(String text) {
+            setValue(new ExoticType(text.toUpperCase()));
+        }
+    }
+
+    <bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+        <property name="customEditors">
+            <map>
+                <entry key="example.ExoticType" value="example.ExoticTypeEditor"/>
+            </map>
+        </property>
+    </bean>
+
+    либо воспользоваться интерфейсом PropertyEditorRegistrar, который используеться если нужно зарегестрировать
+    несколько сущностей по один Editor
+
+    public final class CustomPropertyEditorRegistrar implements PropertyEditorRegistrar {
+        public void registerCustomEditors(PropertyEditorRegistry registry) {
+
+
+            registry.registerCustomEditor(ExoticType.class, new ExoticTypeEditor());
+            // можно зарегестрировать мнжество разных Editor...
+        }
+    }
+
+    и дальше внедрить его:
+
+    <bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+        <property name="propertyEditorRegistrars">
+            <list>
+                <ref bean="customPropertyEditorRegistrar"/>
+            </list>
+        </property>
+    </bean>
+    <bean id="customPropertyEditorRegistrar"
+        class="com.foo.editors.spring.CustomPropertyEditorRegistrar"/>
+
+
+    И в заключение для регестрации в фрейморке MVC используеться механизм initBinder:
+
+
+        public final class RegisterUserController extends SimpleFormController {
+            private final PropertyEditorRegistrar customPropertyEditorRegistrar;
+
+            public RegisterUserController(PropertyEditorRegistrar propertyEditorRegistrar) {
+                this.customPropertyEditorRegistrar = propertyEditorRegistrar;
+            }
+
+            //
+            protected void initBinder(HttpServletRequest request,
+                    ServletRequestDataBinder binder) throws Exception {
+                this.customPropertyEditorRegistrar.registerCustomEditors(binder);
+            }
+        }
