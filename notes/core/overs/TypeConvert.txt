@@ -1,0 +1,69 @@
+Спринг 3 представил пакет утил для конвертации строк в значение свойств, как альтернатива PropertyEditors. Днаный
+API, может быть использовавн в любом вашем проиложении, где понадобиться конвертация типов
+
+
+Converter SPI
+
+SPI это реализация простой и мощной логики конвертирования типов:
+
+    public interface Converter<S, T> {
+        T convert(S source);
+    }
+
+Для создания собственного конвертора просто реализуйте указанный интерфейс.
+Источник должен быть не null иначе бросить исключение
+
+GenericConverter - это более гибкий, но менее типо безпасный вариант, поддреживает конвертацию между
+                   множеством источников и целей. Подобный ковертер, выберает как конвертировать в процессе работы
+                   приложения по аннотациям, параметрезированной информации описанной в сигнатуре поля.
+
+                   Используйте только когда он действительно необходим, в ином случае предпочтителны Converter и
+                   ConverterFactory
+
+
+
+    public interface GenericConverter {
+        public Set<ConvertiblePair> getConvertibleTypes();
+        Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType);
+    }
+
+
+ConditionalGenericConverter - расширение GenericConverter, где конвертация происходит тольо если выполняеться условия
+                              этого конвертора, как наличие аннотации, или необходимого метода в классе.
+
+    public interface ConditionalGenericConverter extends GenericConverter {
+        boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType);
+    }
+
+
+ConversionService API
+    ConversionService предстовляет унифицированное API для работы с конверторами.
+
+Настройка:
+
+    Если не зарегестрирован не один ConversionService то по умолчанию используються PropertyEditor
+
+    Зарегестрировать стандартный конвертер можно так:
+
+        <bean id="conversionService"
+            class="org.springframework.context.support.ConversionServiceFactoryBean"/>
+
+    Стандартный конвертер конвертирует строки, числа, перечесления, коллекции, карты, и другие стандартные типы.
+    Подключить собственные конвертеры можно так:
+
+    <bean id="conversionService"
+            class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <bean class="example.MyCustomConverter"/>
+            </set>
+        </property>
+    </bean>
+
+Для работы с параметризированными обьектами используй TypeDescriptor. Пример как получить из сервиса конертера, лист строк:
+
+DefaultConversionService cs = ...
+List<Integer> input = ....
+cs.convert(input,
+    TypeDescriptor.forObject(input), // List<Integer> type descriptor
+    TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(String.class)));
