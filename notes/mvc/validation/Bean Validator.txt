@@ -1,0 +1,38 @@
+Интеграция с Spring MVC
+
+Начиная с 3 верисей, Spring MVC может валидировать параметры в контроллере.
+Для интреграции нужно добавить аннатацию @Valid:
+
+    @Controller
+    public class MyController {
+        @RequestMapping("/foo", method=RequestMethod.POST)
+        public void processFoo(@Valid Foo foo) { /* ... */ }
+
+@Valid - это аннотация JSR-303
+
+    Конфигурация:
+
+        Для активации Validator, анотированных классов @Valid:
+
+            1. Внедрение валидатора в WebDataBinder, внутри контроллера
+
+                @Controller
+                public class MyController {
+
+                    @InitBinder
+                    protected void initBinder(WebDataBinder binder) {
+                        binder.setValidator(new FooValidator());
+                    }
+
+                    @RequestMapping("/foo", method=RequestMethod.POST)
+                    public void processFoo(@Valid Foo foo) { ... }
+                }
+
+            2.Глобально указать контроллер в дескрипторе:
+
+                <mvc:annotation-driven validator="globalValidator"/>
+
+    Интреграция:
+
+        <!-- JSR-303/JSR-349 поддержка будет поключенна автоматически -->
+        <mvc:annotation-driven/>

@@ -1,0 +1,9 @@
+Spring-driven Method Validation
+    Поддержка валидации меотово структур, взятая из  Bean  Validation  1.1 или Hibernate  Validator  4.3
+
+    Обявить:
+        <bean class="org.springframework.validation.beanvalidation.MethodValidationPostProcessor"/>
+
+    Для поддержки валидации методов, все целевые классы дложны быть аннотированными @Validated
+
+
