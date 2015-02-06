@@ -1,0 +1,86 @@
+Formatter SPI
+    Представляет собой простой и многоразовый. Используеться когда нужно работать с клиентской средой, типа web, где
+    нужно паристь и выводить локализированные значения. Интрефейс форматтера:
+
+        public interface Formatter<T> extends Printer<T>, Parser<T> {
+        }
+
+
+        public interface Printer<T> {
+            String print(T fieldValue, Locale locale);
+        }
+
+
+        import java.text.ParseException;
+        public interface Parser<T> {
+            T parse(String clientValue, Locale locale) throws ParseException;
+        }
+
+    Что бы создать собственный форматтер просто реализутей его интерфейс.
+
+FormatterRegistry SPI
+    Используеться для ресистрации FormatterRegistry
+
+    public interface FormatterRegistry extends ConverterRegistry {
+
+         // Для опредленного типа полей
+        void addFormatterForFieldType(Class<?> fieldType, Printer<?> printer, Parser<?> parser);
+        void addFormatterForFieldType(Class<?> fieldType, Formatter<?> formatter);
+
+        //Для всех полей
+        void addFormatterForFieldType(Formatter<?> formatter);
+
+        // регестрация аннотации
+        void addFormatterForAnnotation(AnnotationFormatterFactory<?, ?> factory);
+    }
+
+FormatterRegistrar SPI
+FormatterRegistrar полезен когда нужно зарегестрировать несколько  форматеров по специальным категориям форматирования,
+таким как Date formatting
+
+Настройка для Spring MVC:
+
+    Для регистрации стандартный правил форматирования в Spring MVC
+    <?xml version="1.0" encoding="UTF-8"?>
+    <beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:mvc="http://www.springframework.org/schema/mvc"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/mvc
+            http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+        <!--
+            Добовляет форматирования для чисел и дат и поддержку @NumberFormat and @DateTimeFormat аннотаций
+            Если установленно Joda Time, то и поключаеться поддержка
+        -->
+        <mvc:annotation-driven/>
+    </beans>
+
+
+    Добавить собственные форматеры:
+
+    <mvc:annotation-driven conversion-service="conversionService"/>
+
+        <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+            <property name="converters">
+                <set>
+                    <bean class="org.example.MyConverter"/>
+                </set>
+            </property>
+            <property name="formatters">
+                <set>
+                    <bean class="org.example.MyFormatter"/>
+                    <bean class="org.example.MyAnnotationFormatterFactory"/>
+                </set>
+            </property>
+            <property name="formatterRegistrars">
+                <set>
+                    <bean class="org.example.MyFormatterRegistrar"/>
+                </set>
+            </property>
+        </bean>
+
+
+
