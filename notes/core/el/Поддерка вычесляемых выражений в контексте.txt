@@ -1,0 +1,53 @@
+XML конфигурация
+Можно не указывать префикс #
+
+Вычесление значение:
+
+    <bean id="numberGuess" class="org.spring.samples.NumberGuess">
+        <property name="randomNumber" value="#{ T(java.lang.Math).random() * 100.0 }"/>
+        <!-- other properties -->
+    </bean>
+
+Получение значения из предопределонной карты:
+
+<bean id="taxCalculator" class="org.spring.samples.TaxCalculator">
+    <property name="defaultLocale" value="{ systemProperties['user.region'] }"/>
+    <!-- other properties -->
+</bean>
+
+
+
+Получение значение из параметра инициализированного бина:
+
+<bean id="bean1" class="org.spring.FirstBean">
+    <property name="beanProp" value="someValue" />
+</bean>
+
+<bean id="bean2" class="org.spring.SecondBean">
+    <property name="beanProp" value="{bean1.beanProp}" />
+</bean>
+
+
+Аннотации:
+
+Заполнение поля, значением из предопределенной карты:
+
+    @Value("#{ systemProperties['user.region'] }")
+    private String defaultLocale;
+
+или указать сетеру:
+
+
+  @Value("#{ systemProperties['user.region'] }")
+    public void setDefaultLocale(String defaultLocale) {
+        this.defaultLocale = defaultLocale;
+    }
+
+Автозаполнения для аргументов конструктора, метода:
+
+    @Autowired
+    public void configure(MovieFinder movieFinder,
+            @Value("#{ systemProperties['user.region'] }") String defaultLocale) {
+        this.movieFinder = movieFinder;
+        this.defaultLocale = defaultLocale;
+    }

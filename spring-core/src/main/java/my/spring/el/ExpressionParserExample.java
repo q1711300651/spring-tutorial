@@ -2,15 +2,18 @@ package my.spring.el;
 
 import my.spring.el.add.Inventor;
 import my.spring.el.add.SimpleGeneric;
-import org.springframework.expression.EvaluationContext;
+import my.spring.el.add.SimpleUtils;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.ParserContext;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Примеры реализации и работы с Spring’s Expression  Language
@@ -20,7 +23,7 @@ import java.util.Arrays;
  */
 public class ExpressionParserExample {
 
-    public static void main( String[] args ) {
+    public static void main( String[] args ) throws NoSuchMethodException {
 
         ExpressionParser parser = new SpelExpressionParser();
 
@@ -58,7 +61,7 @@ public class ExpressionParserExample {
             выполнения повторное выполнение выражений будет более быстрее, по этому рекомендуеться кешировать и
             использовать где это возможно, чем содовать новые для кождого выражения
          */
-        EvaluationContext context = new StandardEvaluationContext(tesla);
+        StandardEvaluationContext context = new StandardEvaluationContext(tesla);
         System.out.println(nameOfInventors.getValue(context));
 
         // Получение булевых занчений
@@ -97,5 +100,60 @@ public class ExpressionParserExample {
 
         //После вызова getValue stringList будет хранить в себе четыри пустых строки
         System.out.println(simpleGeneric.getStringList().size());
+
+        // переменные
+
+        context.setVariable( "newName", "Mike Tesla" );
+        parser.parseExpression( "name = #newName" ).getValue( context );
+        System.out.println( tesla.getName() );
+
+        /*
+        #this и #root
+            #this - ссылаеться на обьект в контексте которого выполнеться вырожение
+            #root - всегда ссылается на корневой обьект
+         */
+        List<Integer> primes = new ArrayList<>();
+        primes.addAll(Arrays.asList(2,3,5,7,11,13,17));
+        context.setVariable( "primes", primes );
+
+        @SuppressWarnings( "unchecked" )
+        List<Integer> moreThenTenPrimes = ( List<Integer> ) parser.parseExpression( "#primes.?[#this>10]" )
+                .getValue( context );
+        System.out.println( moreThenTenPrimes );
+
+        /*
+            Функции
+            Регистрация функции
+        */
+        context.registerFunction( "reverseString", SimpleUtils.class.getDeclaredMethod( "reverseString", String.class ) );
+        String reverseStringResult = parser.parseExpression( "#reverseString('hello')" ).getValue( context, String.class );
+        System.out.println(reverseStringResult);
+
+
+        /*
+            Внутрениее Шаблоны
+            Позволяет сочетать статические и динамисеские элементы в выражении:
+         */
+        ParserContext templateContext = new ParserContext() {
+
+            @Override
+            public boolean isTemplate() {
+                return true;
+            }
+
+            @Override
+            public String getExpressionPrefix() {
+                return "#{";
+            }
+
+            @Override
+            public String getExpressionSuffix() {
+                return "}";
+            }
+        };
+
+        String templateResult = parser.parseExpression( "Случайное значение: #{T(java.lang.Math).random()}",
+                templateContext ).getValue( String.class );
+        System.out.println(templateResult);
     }
 }
