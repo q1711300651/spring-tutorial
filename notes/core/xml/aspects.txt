@@ -1,0 +1,25 @@
+Инициализировать аспекты
+
+<aop:aspectj-autoproxy/>
+
+
+Описание аспекта
+    Обычное описание указывает класс с аннотацией @Aspect
+
+    <bean id="myAspect" class="org.xyz.NotVeryUsefulAspect">
+        <!-- configure properties of aspect here as normal -->
+    </bean>
+
+
+
+<aop:config>
+    <aop:advisor
+        pointcut="com.xyz.someapp.SystemArchitecture.businessService()"
+        advice-ref="tx-advice"/>
+</aop:config>
+
+<tx:advice id="tx-advice">
+    <tx:attributes>
+        <tx:method name="*" propagation="REQUIRED"/>
+    </tx:attributes>
+</tx:advice>
