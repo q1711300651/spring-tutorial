@@ -28,7 +28,7 @@ public class AspectCommons {
         Методы Pointcut не должны иметь тела, т.к код внутри метода, выполняться не будет.
         Эти методы просто представляют собой пространсто имен, где каждое имя возрращает скомпилировнное выражения для AOP
     */
-    @Pointcut("execution(* my.spring.aspects.common.target.*.walk(..))")
+    @Pointcut("execution(* my.spring.aspects.common.targets.*.walk(..))")
     private void anyWalking() {
     }
 
@@ -36,15 +36,15 @@ public class AspectCommons {
         Комбинирования и исопльзования выражение в Pointcut Может быть использована при помощи (&&,|| и !)
         Считаеться хорошей практикой комбинирования уже готовых неболших точек соединения
      */
-    @Pointcut("execution(* my.spring.aspects.common.target.*.*(..)) && bean(teacher)")  // для всех бинов teacher
+    @Pointcut("execution(* my.spring.aspects.common.targets.*.*(..)) && bean(teacher)")  // для всех бинов teacher
     private void teacherMethods() {
     }
 
-    @Pointcut("within(my.spring.aspects.common.target.*))") // Все методы классов в пакете target
+    @Pointcut("within(my.spring.aspects.common.targets.*))") // Все методы классов в пакете target
     public void inPainterAndTeacherMethods() {
     }
 
-    @Pointcut("execution(* my.spring.aspects.common.target.*.*(..) throws Exception+)")
+    @Pointcut("execution(* my.spring.aspects.common.targets.*.*(..) throws Exception+)")
     public void onlyWithException() {}
 
     @Pointcut("teacherMethods() && args(param)")
@@ -75,7 +75,7 @@ public class AspectCommons {
     }
 
     // После с возратом
-    @AfterReturning(value = "execution(String my.spring.aspects.common.target.*.*())", returning = "retVal")
+    @AfterReturning(value = "execution(String my.spring.aspects.common.targets.*.*())", returning = "retVal")
     public void doAfterReturning(String retVal) {
         System.out.println("После с возращением параметра: " + retVal);
     }
@@ -141,7 +141,7 @@ public class AspectCommons {
     Для работы с параметризировнными методам, можно просто указывать тип параметра в аргументе совета:
      */
 
-    @Before( value = "execution(void my.spring.aspects.common.target.Person.doJob(..)) && args(jobType)")
+    @Before( value = "execution(void my.spring.aspects.common.targets.Person.doJob(..)) && args(jobType)")
     public void doGenericAdvice( String jobType ) {
         System.out.println("Перед: праметрезированный метод строкой " + jobType);
     }
@@ -152,12 +152,12 @@ public class AspectCommons {
        проверить елементы
      */
 
-    @Before("execution(void my.spring.aspects.common.target.Person.doJobs(..)) && args(jobTypes)")
+    @Before("execution(void my.spring.aspects.common.targets.Person.doJobs(..)) && args(jobTypes)")
     public void beforeCollectionMethod(Collection<?> jobTypes) {
         System.out.println("get collection of elements: " + jobTypes.size());
     }
 
-    @Before("execution(void my.spring.aspects.common.target.Person.doJobs(..)) && args(jobTypes)")
+    @Before("execution(void my.spring.aspects.common.targets.Person.doJobs(..)) && args(jobTypes)")
     public void beforeCollectionOfStringsMethod(Collection<Integer> jobTypes) {
         // Совет все равно выполниться хотя, тип елементов коллеции и другой
         System.out.println("get collection of elements: " + jobTypes.size());

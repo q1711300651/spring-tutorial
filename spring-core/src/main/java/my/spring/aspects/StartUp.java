@@ -1,7 +1,7 @@
 package my.spring.aspects;
 
-import my.spring.aspects.common.target.Painter;
-import my.spring.aspects.common.target.Teacher;
+import my.spring.aspects.common.targets.Painter;
+import my.spring.aspects.common.targets.Teacher;
 import my.spring.aspects.introductions.Lockable;
 import my.spring.aspects.introductions.Resource;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
