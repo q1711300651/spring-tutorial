@@ -106,3 +106,84 @@
 Инициализация
     Для инициализации АОП в Spring, можно исопльзовать дерективы XML или аннотации. Так же нужно позаботиться, что бы
     библеотека aspectjweaver.jar 1.6.8+ была подключенна
+
+
+LTW
+Load-Time Weaving используеться когда необходимо преодалеть ограничение спрингового AOP
+Особенности:
+
+    1. Теперь у нас нет одного .xml файла, куда мы красиво складываем наши pointcut-ы, aspect-ы.
+    2. Нужно добавить новый aop.xml, где мы должны указать наши weaver-ы (классы которые непосредственно учувствуют в процессе), aspects-ы.
+    3.Над классами аспектов появляется аннотация @Aspec + <aop:aspectj-autoproxy>
+     ( если нужно сочетание Spring AOP и LTW используй <aop:include name="thisBean"/> что бы указать бины которые длжны
+      использоваться как Spring AOP)
+    4. Pointcut-ы тепер указываются непосредственно над aspect-ами.
+
+        @Before( "execution(*  com.solutions. web.test.WebTestClass.testA())")
+            public void testALog() {}
+
+    6.
+    4. Нужно добавить аргумент при запуске JVM/Server:
+
+        -javaagent:${PATH_TO_LIB }/aspectjweaver.jar
+
+В теге <weaver> следует указать все классы к которым будут применены аспекты + пакет со всеми аспектами:
+
+        <weaver>
+            <include within="foo.*"/>
+        </weaver>
+
+        <aspects>
+            <aspect name="foo.ProfilingAspect"/>
+        </aspects>
+
+Если у нас есть класс (ClassA) и аспект (AspectA) которые находятся в разных пакетах,
+то валидной конфигурацией будет следующий aop.xml:
+
+   <weaver>
+        <include within="com.example.ClassA"/> <!-- путь к конкретному классу -->
+        <include within="com.log.* "/> <!—путь к пакету с аспектами>
+    </weaver>
+
+    <aspects>
+        <aspect name="com.log.AspectA"/>
+    </aspects>
+
+Выводы:
+    1.Для всех public методов верхнего уровня (EAR/APP, WEB уровень) можно использовать Spring AOP.
+    2.Для всего WEB уровня не public и методов не верхнего уровня можно использовать LTW (если СTW не используется).
+    3.Для всего APP уровня не public и методов не верхнего уровня можно использовать CTW (если LTW не используется).
+    4.CTW и LTW не совместимые технологии.
+
+Неободимые библиотеки:
+
+    spring-aop.jar (version 2.5+ or later + все зависимости)
+    aspectjweaver.jar (version 1.6.8+)
+    spring-instrument.jar
+
+
+Настройка окружения для LTW
+tomcat 6+
+
+    Томкат classloader не поддреживает LTW, поэтому Sping предостовляет расширенную версию класс лоудера
+    TomcatInstrumentableClassLoader
+
+
+    Копировать в CATALINA_HOME/lib org.springframework.instrument.tomcat.jar
+
+    Прописать контекст в web application директиву изменение класс лоукда
+    <Context path="/myWebApp" docBase="/my/webApp/location">
+        <Loader loaderClass="org.springframework.instrument.classloading.tomcat.TomcatInstrumentableClassLoader"/>
+    </Context>
+
+JBoss 6.x
+
+    отключит сканирования пакетов, что бы предотвратить загрузку классов, до запуска приложежния
+    Добавить файл WEB-INF/jboss-scanning.xml с текстом
+        scanning xmlns="urn:jboss:scanning:1.0"/>
+
+Standalone
+    Добавить в аргумент запуска
+
+     -javaagent:/path/to/org.springframework.instrument-{version}.jar
+

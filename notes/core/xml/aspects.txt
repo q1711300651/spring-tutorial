@@ -3,6 +3,8 @@
 <aop:aspectj-autoproxy/>
 
 
+
+
 Описание аспекта
     Обычное описание указывает класс с аннотацией @Aspect
 
@@ -10,6 +12,11 @@
         <!-- configure properties of aspect here as normal -->
     </bean>
 
+
+aop:config
+
+Обьявлет конйигурацию АОП в спринг, все аспеты, должны быть реализовнны в пределах этого тега
+Из-за сложности в сочетании с механизмом autoproxy, рекомендованно использовать либо AutoProxyCreator ситль либо aop:config
 
 
 <aop:config>
@@ -23,3 +30,74 @@
         <tx:method name="*" propagation="REQUIRED"/>
     </tx:attributes>
 </tx:advice>
+
+
+Аттрибут  proxy-target-class="true" указывает что для реализации АОП спринг должен использовать механизм CGLIB
+Указывая такую стратегию поведение для одного aop:config, будет расшарино и на другие обьявления
+aop:config, tx:annotation-driven, aop:aspectj-autoproxy
+
+
+
+
+aop:pointcut
+
+Обьявление точки соединение в пределах aop:config:
+
+  <aop:pointcut id="businessService"
+        expression="execution(* com.xyz.myapp.service.*.*(..))"/>
+
+
+Обьявление точки в пределах аспекта:
+
+    <aop:config>
+        <aop:aspect id="myAspect" ref="aBean">
+            <aop:pointcut id="businessService"
+                expression="execution(* com.xyz.myapp.service.*.*(..))"/>
+            ...
+        </aop:aspect>
+    </aop:config>
+
+Из-за того что & должен экранироватся в пределах XML документа, можно использовать альтернативный синтаксис
+and, or и not:
+
+<aop:pointcut id="businessService"
+            expression="execution(* com.xyz.myapp.service.*.*(..)) and this(service)"/>
+
+
+
+aop:advice
+
+Обьвление совета в XML
+
+<aop:aspect id="beforeExample" ref="aBean">
+
+    До
+    <aop:before
+        pointcut-ref="dataAccessOperation"
+        method="doAccessCheck"/>
+
+     После с возращаением
+     <aop:after-returning
+            pointcut-ref="execution(* com.xyz.myapp.dao.*.*(..))"
+            returning="retVal"
+            method="doAccessCheck"/>
+
+     После с исключением
+     <aop:after-throwing
+             pointcut-ref="dataAccessOperation"
+              throwing="dataAccessEx"
+             method="doRecoveryActions"/>
+
+     После
+     <aop:after
+             pointcut-ref="dataAccessOperation"
+             method="doReleaseLock"/>
+
+     Вокруг
+     <aop:around
+             pointcut-ref="com.xyz.lib.Pointcuts.anyPublicMethod() and @annotation(auditable)"
+             arg-names="auditable" Поддерживает разделение запятыми
+             method="doBasicProfiling"/>
+
+
+</aop:aspect>

@@ -40,5 +40,8 @@ public class StartUp {
         lockable.lock();
         resource.setContent( "new content" );
 
+        Resource resource1 = ctx.getBean( Resource.class );
+        resource1.setContent( "new content" );
+
     }
 }
