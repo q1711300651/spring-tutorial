@@ -1,0 +1,17 @@
+Пример реализации обьекта источника данных на java для тествой среды
+
+    @Configuration
+    @Profile("dev") // тестовый профалер
+    public class StandaloneDataConfig {
+
+
+        @Bean
+        public DataSource dataSource() {
+            return new EmbeddedDatabaseBuilder() // строитель для базы данных в оперативной памяти
+                .setType(EmbeddedDatabaseType.HSQL)
+                .addScript("classpath:com/bank/config/sql/schema.sql")
+                .addScript("classpath:com/bank/config/sql/test-data.sql")
+                .build();
+        }
+    }
+

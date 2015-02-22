@@ -1,0 +1,22 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <bean id="userService" class="my.spring.testing.webapp.impl.UserServiceImpl"
+          c:loginAction-ref="loginAction"
+          c:preferences-ref="userPref"/>
+
+    <bean id="loginAction" class="my.spring.testing.webapp.impl.LoginActionImpl" scope="request"
+          c:user="#{request.getParameter('user')}"
+          c:pswd="#{request.getParameter('pswd')}" >
+        <aop:scoped-proxy/>
+    </bean>
+
+    <bean id="userPref" class="my.spring.testing.webapp.UserPreferences" scope="session"
+          c:theme="#{session.getAttribute('theme')}">
+        <aop:scoped-proxy/>
+    </bean>
+
+</beans>

@@ -141,7 +141,7 @@ constructor-arg
     Используя префикс "c:" можно обявить аругменты конструтора бина
 
      Пример:
-        <beans ... mlns:c="http://www.springframework.org/schema/c" ... >
+        <beans ... xmlns:c="http://www.springframework.org/schema/c" ... >
              <bean id="foo" class="x.y.Foo" c:bar-ref="bar" c:baz-ref="baz" c:email="foo@bar.com"/>
         </beans>
 

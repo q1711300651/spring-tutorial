@@ -1,0 +1,6 @@
+org.springframework.test.context.testng предостовляет несколько шаблонных абстрактных классов, для базового тестирования.
+
+AbstractTestNGSpringContextTests - предостовляет базовые работы с контекстом приложения
+
+AbstractTransactionalTestNGSpringContextTests - предостовляет методы для тестирования jdbc соединений.
+  jdbcTemplate: переменна предостовляющая доступ к выполнению SQL-запросов

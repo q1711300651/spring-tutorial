@@ -1,0 +1,137 @@
+Аннотации
+
+@ContextConfiguration(classes =  ?.class|"classpath:/some-xml.xml")
+
+Предостволяет возможнозить загузки контекста для тестовой среды.
+Если не указан ни xml ни классы, то настройщик контекста просмотрит тествый класс на наличие внутренних статичных классов
+конфигурации, которые имеют соотетсвующую аннотацию:
+
+    @ContextConfiguration
+    public class OrderServiceTest {
+
+        @Configuration
+        static class Config {
+            ...
+        }
+        ...
+    }
+
+
+@ContextConfiguration(initializers = EntireAppInitializer.class)
+
+    аттрибут initializers возвращает массив наследников ApplicationContextInitializer, в которыз используеться логика
+    по загузки контента. При множестве инициализаторов, упорядочить их можно с помошью аннотации @Order
+
+
+@WebAppConfiguration(["переписать путь к руту по-умолчанию"])
+
+Аннотация класса, обозначает класс как работающие в web среде.
+Тесты использует путь к ресурсам "file:src/main/webapp"
+
+доп. обтьекты для работе в тестовой среде веб приложения:
+
+    @Autowired WebApplicationContext wac; // кэширован
+    @Autowired MockServletContext servletContext; // кэширован
+    @Autowired MockHttpSession session;
+    @Autowired MockHttpServletRequest request;
+    @Autowired MockHttpServletResponse response;
+    @Autowired ServletWebRequest webRequest;
+
+
+
+@ContextHierarchy
+    Ипользуеться, что бы упорядочить загрузки нескольких десприторов контекста:
+
+        @ContextHierarchy({
+            @ContextConfiguration("/parent-config.xml"),
+            @ContextConfiguration("/child-config.xml")
+        })
+        public class ContextHierarchyTests ...
+
+@ActiveProfiles("dev")
+
+Аннотация класса, активирует указанный профайл. наследуемая.
+    Необязательно передавать каждому тесту эту аннотацию, достаточно наследываться от класса ей аннотированного:
+
+
+    @RunWith(SpringJUnit4ClassRunner.class)
+    @ContextConfiguration(classes = {
+        TransferServiceConfig.class,
+        StandaloneDataConfig.class,
+        JndiDataConfig.class,
+        DefaultDataConfig.class } )
+    @ActiveProfiles("dev")
+    public abstract class AbstractIntegrationTest { }
+
+    public class TransferServiceTest extends AbstractIntegrationTest {
+        // в этом теством классе, профайл "dev" тоже будет активным
+    }
+
+    @ActiveProfiles(profiles = "production", inheritProfiles = false)
+    public class ProductionTransferServiceTest extends AbstractIntegrationTest {
+        // в этом "dev" будет заменен на "production"
+    }
+
+
+@DirtiesContext
+
+Указывает что данный элемент(класс/метод) сильно загрезняет контекст тестовой среды, и должен быт очисщен и удален
+не в зависимости от результатов тестирования
+
+По умолчанию алгоритм будет очищать кэш не только текущего уровня контектса, но и всех остальных по цепочке
+ContextHierarchy.
+Что бы указать очищать только текущий кэш:
+
+
+    @ContextHierarchy({
+        @ContextConfiguration("/parent-config.xml"),
+        @ContextConfiguration("/child-config.xml")
+        })
+    public class BaseTests {
+        // class body...
+    }
+
+    public class ExtendedTests extends BaseTests {
+
+        @Test @DirtiesContext(hierarchyMode = HierarchyMode.CURRENT_LEVEL)
+        public void test() {
+            // some logic that results in the child context being dirtied
+        }
+    }
+
+@TestExecutionListeners
+
+Регистрируеться слушатель для работы с контекстом
+
+
+@TransactionConfiguration(transactionManager = "beanName", defaultRollback = false)
+
+Обьявляет класс, для конфигурации транзакционности
+
+
+@Rollback(true|false)
+
+Аннотация указывает систему не/откатываться после выполнения теста.
+
+
+@BeforeTransaction
+
+    Регестрирует public void метод, запускаться перед выполнением транзакции,
+    @BeforeTransaction
+    public void beforeTransaction() {
+        // logic to be executed before a transaction is started
+    }
+
+@AfterTransaction
+   После транзакции
+
+Поддерживаемые аннотации
+
+    • @Autowired
+    • @Qualifier
+    • @Resource (javax.annotation) если поключенна JSR-250
+    • @Inject (javax.inject) если поключенна  JSR-330
+    • @Named (javax.inject) если поключенна JSR-330
+    • @PersistenceContext (javax.persistence) если поключенна JPA
+    • @PersistenceUnit (javax.persistence) если поключенна JPA
+    • @Required

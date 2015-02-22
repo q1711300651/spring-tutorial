@@ -1,0 +1,26 @@
+Аннотации
+
+@IfProfileValue
+
+Проверяет тестову среду, на соотетсвие с праметрами окружения. Если false, тест не выполняеться
+
+    @Test
+    @IfProfileValue(name="java.vendor", value="Oracle Corporation")
+
+    либо к нескольким значениям через "и"
+
+    @IfProfileValue(name="test-groups", values={"unit-tests", "integration-tests"})
+    public void testProcessWhichRunsOnlyOnOracleJvm() {
+        // some logic that should run only on Java VMs from Oracle Corporation
+    }
+
+@ProfileValueSourceConfiguration
+
+    Определяет какой источник профалов использовать для получения пар ключ-значения для IfProfileValue
+    Если не указан, по умолчанию SystemProfileValueSource
+
+@Timed
+    Обьявляет что тестовый метод должен выполниться в пределах укзанного количества миллисикунд
+
+@Repeat
+    Обьвляет что тестовый метод должен быть вызван на указанное число раз

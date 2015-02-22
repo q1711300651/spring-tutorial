@@ -1,0 +1,21 @@
+Избегайти обманчиво позитивных тестов при работе с ORM
+
+Когда вы работает с JPA (Hibernate, over ORM ) убедитесь что сесиия очистела буффер. Если не очищать буффер
+то можно получить положительные тесты, гда на боевом приложение будет падать:
+
+    @Autowired
+    private SessionFactory sessionFactory;
+
+    @Test // нет ожидаемой ошибки
+    public void falsePositive() {
+        updateEntityInHibernateSession();
+        // Обманчиво позитивный: ошибка может все таки возникнуть когда, сессия все же будет очищенна
+    }
+
+    @Test(expected = GenericJDBCException.class)
+    public void updateWithSessionFlush() {
+        updateEntityInHibernateSession();
+
+        // ручное очищение сессии позволяет избежать ошибочно позитивных тестов
+        sessionFactory.getCurrentSession().flush();
+    }
