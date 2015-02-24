@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- Это сервис, который нужно поместить в транзакцию -->
+    <bean id="exampleService" class="my.spring.transaction.declarative.DeclarativeExampleTransactionService"/>
+
+    <!-- Транзакционный совет -->
+
+    <!--
+        Если менеджер транзакции имеет имя "transactionManager". то можно не указывать transaction-manager атрибут
+    -->
+    <tx:advice id="txAdvice" transaction-manager="txManager">
+        <!-- настройка транзакции... -->
+        <tx:attributes>
+            <!-- все методы начинающиеся с get должны только читать данные-->
+            <tx:method name="get*" read-only="true"/>
+            <!-- Все остальные настроенны по умолчанию -->
+            <!--<tx:method name=""/>-->
+        </tx:attributes>
+    </tx:advice>
+
+    <!--Убедимся что транзакция выполняеться для всех медовов интерфейса -->
+    <aop:config>
+        <aop:pointcut id="serviceOperation" expression="execution(* my.spring.transaction.ExampleTransactionService.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="serviceOperation"/>
+    </aop:config>
+    <!-- описание источника данных -->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
+        <property name="url" value="jdbc:oracle:thin:@rj-t42:1521:elvis"/>
+        <property name="username" value="scott"/>
+        <property name="password" value="tiger"/>
+    </bean>
+    <!-- транзакционнй менеджер -->
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!-- отсальные бины -->
+</beans>

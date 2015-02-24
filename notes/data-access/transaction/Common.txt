@@ -1,0 +1,20 @@
+Ключевой абстракция транзации Spring PlatformTransactionManager:
+
+    public interface PlatformTransactionManager {
+            TransactionStatus getTransaction( TransactionDefinition definition ) throws TransactionException;
+            void commit(TransactionStatus status) throws TransactionException;
+            void rollback(TransactionStatus status) throws TransactionException;
+    }
+
+Метод
+       getTransaction(..) - врзврашает статус транзакции(TransactionStatus) в зависимости от
+                            описания транзакции ( TransactionDefinition )
+                            TransactionStatus может предсталяеть новую транзакции или уже существующую
+
+TransactionDefinition описывает:
+    1.Изоляцию(Isolation): Степень изоляции транзакции от работы других транзакций.
+    2.Растпостранение(Propagation)
+    3.Счетчик(Timeout): как долго транзакция должна работать, пока не откатиться по таймауту
+    4. Только чтенение(Read-only status): Статус запрещает модифицировать данные
+
+
