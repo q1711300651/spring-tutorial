@@ -7,6 +7,7 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>spring-core</module>
+        <module>spring-data-access</module>
     </modules>
     <packaging>pom</packaging>
     <name>SpringTutorial</name>
