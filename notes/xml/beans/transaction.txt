@@ -1,0 +1,30 @@
+
+Для предостовление механизма трназакции нужно просто создать соответсвуюзий бин
+
+
+<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="dataSource"/>
+</bean>
+
+Верся для формирования менеджера транзакции в апп сервере EE
+
+<jee:jndi-lookup id="dataSource" jndi-name="jdbc/jpetstore"/>
+<bean id="txManager" class="org.springframework.transaction.jta.JtaTransactionManager"/>
+
+Версия для Hibernate:
+
+<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+    <property name="dataSource" ref="dataSource" />
+    <property name="mappingResources">
+        <list>
+            <value>org/springframework/samples/petclinic/hibernate/petclinic.hbm.xml</value>
+        </list>
+    </property>
+    <property name="hibernateProperties">
+        <value>hibernate.dialect=${hibernate.dialect}/value>
+    </property>
+</bean>
+
+<bean id="txManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+<property name="sessionFactory" ref="sessionFactory" />
+</bean>
