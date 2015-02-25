@@ -1,0 +1,72 @@
+@Transactional
+
+Альтернатива xml описанию транзакции методов. Аннотация добовляеться к методу или классу и обьявлет его транзакционным
+Если не использовать AspectJ, методы должны быть публичными
+
+Рекомендовоноо аннотировать конкретные классы или методы конкретных классов, в отличии от интерфейсов. Это решает проблему
+в случае если аръитектура не использует прокси-интерфейсов.
+
+
+
+Настройка:
+    1.value                     |   String            | указывает какой менеджер транзакции использовать
+    2.propagation               |   enum:Propagation  | настройка распостранения (умол. PROPAGATION_REQUIRED)
+    3.isolation                 |   enum:Isolation    | настройка изоляции (умол. ISOLATION_DEFAULT)
+    4.readOnly                  |   boolean           | настройка чтение/запись (умол. false)
+    5.timeout                   |   int(секунды)      | настройка откаты по таймауту(умол. -1(нет))
+    1.rollbackFor               |   Class             | массив классов исключений что вызывают откат
+    1.rollbackForClassName      |   Class             | массив имен классов исключений что вызывают откат
+    1.noRollbackFor             |   Class             | массив классов исключений что не вызывают откат
+    1.noRollbackForClassName    |   Class             | массив имен классов исключений что не вызывают откат
+
+
+для активации аннотации нужно доабить директиву
+    <tx:annotation-driven transaction-manager="ид менеджера"/>
+
+или
+ @EnableTransactionManagement - для Java описания
+
+Обе эти настройки выполняюь поиск аннотации @Transactional в пределах своего контекста, это значит что если указать  в
+WebApplicationContext DispatcherServlet, то аннотация просмотрит тольо классы контроллеры, но не сервисы
+
+
+Реализация аннотаций с множеством менеджеров транзакций
+
+    @Transactional("order")
+    public void setSomething(String name) { ... }
+
+    @Transactional("account")
+    public void doSomething() { ... }
+
+
+    XML:
+      <bean id="transactionManager1" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+            <qualifier value="order"/>
+        </bean>
+
+      <bean id="transactionManager2" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+            <qualifier value="account"/>
+      </bean>
+
+или сокращение с помошью наследования аннотаций:
+
+    @Target({ElementType.METHOD, ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @Transactional("order")
+    public @interface OrderTx { }
+
+    @Target({ElementType.METHOD, ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @Transactional("account")
+    public @interface AccountTx { }
+
+
+
+
+
+
+Настрокойки:
+    transaction-manager (по умолочанию transactionManager) имя менеджера транзакции
+    mode (умолч. proxy) тип перехвата транзакции Spring AOP/ AspectJ weaving
+    proxy-target-class (умолч. false)  контролирует какой тип прокси для транзакции будет создан false - стандартрый JDK, true - CGLIB
+    order - порядок выполнение советов транзакции ( более подробно AOP сортировка советов )

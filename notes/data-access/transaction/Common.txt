@@ -18,3 +18,16 @@ TransactionDefinition описывает:
     4. Только чтенение(Read-only status): Статус запрещает модифицировать данные
 
 
+
+
+Раелизация транзакции на основе AspectJ:
+
+// Формирвания менеджера транзакции
+DataSourceTransactionManager txManager = new DataSourceTransactionManager(getDataSource());
+
+// конфигурация AnnotationTransactionAspect; это должно быть реализованно перед выполнением транзакционных методов
+AnnotationTransactionAspect.aspectOf().setTransactionManager(txManager);
+
+Используя AspectJ, нужно учитывать что аннотировать можно толкьо реализации интерфейсов, а не сами интрефейсы
+и их методы
+

@@ -18,7 +18,7 @@
         <!-- настройка транзакции... -->
         <tx:attributes>
             <!-- все методы начинающиеся с get должны только читать данные-->
-            <tx:method name="get*" read-only="true"/>
+            <tx:method name="get*" read-only="true" rollback-for="RuntimeException" no-rollback-for="IllegalStateException"/>
             <!-- Все остальные настроенны по умолчанию -->
             <!--<tx:method name=""/>-->
         </tx:attributes>
