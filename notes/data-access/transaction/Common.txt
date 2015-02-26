@@ -19,7 +19,6 @@ TransactionDefinition описывает:
 
 
 
-
 Раелизация транзакции на основе AspectJ:
 
 // Формирвания менеджера транзакции
@@ -30,4 +29,7 @@ AnnotationTransactionAspect.aspectOf().setTransactionManager(txManager);
 
 Используя AspectJ, нужно учитывать что аннотировать можно толкьо реализации интерфейсов, а не сами интрефейсы
 и их методы
+
+
+
 
