@@ -1,0 +1,39 @@
+@Repository
+
+Аннотация для DAO обьектов.
+Позволяет транслирывать возможные исключение (в зависимости от платформы ) в исключение спринга DataAccessException
+Поддерживает сканирования компонентов
+
+В запсимости от платформы досупа к бд, можно использовать одну из аннотаций @Autowired, @Inject, @Resource или
+@PersistenceContext:
+
+    @Repository
+    public class JpaMovieFinder implements MovieFinder {
+        @PersistenceContext
+        private EntityManager entityManager;
+        // ...
+    }
+
+
+    @Repository
+    public class HibernateMovieFinder implements MovieFinder {
+         @Autowired
+         private SessionFactory sessionFactory;
+         // ...
+    }
+
+    или для JDBC
+
+    @Repository
+    public class JdbcMovieFinder implements MovieFinder {
+
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public void init(DataSource dataSource) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    }
+
+    }
+
+
