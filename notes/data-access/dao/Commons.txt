@@ -45,3 +45,31 @@ DriverManagerDataSource
 
     Реализация dataSource, которая возвращает каждый раз новое соединение
     Полезна в stand-alone
+
+
+Встроенные база данных
+
+Спринг поддерживает внутреннию базу данных HSQL, такой пример создаст базу данных и вызовет две скрипта
+для её заполнения. После база данных будет доступна в контейнере спринга, через  javax.sql.DataSource
+
+<jdbc:embedded-database id="dataSource">
+    <jdbc:script location="classpath:schema.sql"/>
+    <jdbc:script location="classpath:test-data.sql"/>
+</jdbc:embedded-database>
+
+либо программно:
+
+    EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
+    EmbeddedDatabase db = builder.setType(H2).addScript("my-schema.sql").addScript("my-test-
+    data.sql").build();
+    // do stuff against the db (EmbeddedDatabase extends javax.sql.DataSource)
+    db.shutdown()
+
+
+Доступные встроенные базы данных
+
+HSQL  1.8.0+
+    Установленна по умочанию в контейнере Spring
+H2
+
+Derby 10.5+

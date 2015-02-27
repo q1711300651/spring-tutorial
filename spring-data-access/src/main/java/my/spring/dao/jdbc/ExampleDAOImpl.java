@@ -2,16 +2,27 @@ package my.spring.dao.jdbc;
 
 import my.spring.dao.ExampleDAO;
 import my.spring.dao.ExampleEntity;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.*;
 import org.springframework.jdbc.core.namedparam.*;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.core.support.AbstractLobCreatingPreparedStatementCallback;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.support.lob.DefaultLobHandler;
+import org.springframework.jdbc.support.lob.LobCreator;
+import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.stereotype.Repository;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -223,6 +234,32 @@ public class ExampleDAOImpl implements ExampleDAO {
         exampleEntity.setName( ( String ) out.get( "out_name" ) );
         exampleEntity.setSomeDouble( ( Double ) out.get( "out_some_dobule" ) );
 
+    }
+
+    /**
+     * Пример работы с CLOB/BLOB интерфесом lobHandle
+     */
+    public void blobClobExamples() throws IOException {
+        File blobIn = new File( "someFile.file" );
+        InputStream blobIs = new FileInputStream( blobIn );
+
+        File clobIn = new File( "large.txt" );
+        InputStream clobs = new FileInputStream( clobIn );
+        InputStreamReader clobReader = new InputStreamReader( clobs );
+
+        LobHandler lobHandler = new DefaultLobHandler();
+        jdbcTemplate.execute( "INSERT INTO lob_table (id, a_clob, a_blob) VALUES (?, ?, ?)",
+                new AbstractLobCreatingPreparedStatementCallback( lobHandler ) {
+                    @Override
+                    protected void setValues( PreparedStatement ps, LobCreator lobCreator )
+                            throws SQLException, DataAccessException {
+                        ps.setLong( 1, 1L );
+                        lobCreator.setClobAsCharacterStream( ps, 2, clobReader, ( int ) clobIn.length() );
+                        lobCreator.setBlobAsBinaryStream( ps, 3, blobIs, ( int ) blobIn.length() );
+                    }
+                } );
+        blobIs.close();
+        clobReader.close();
     }
 
     @Override
