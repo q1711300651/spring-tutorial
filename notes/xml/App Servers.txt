@@ -1,0 +1,5 @@
+Обычно на апп серверах, получение источника данных проводеться через JNDI запрос
+
+<beans>
+    <jee:jndi-lookup id="myDataSource" jndi-name="java:comp/env/jdbc/myds"/>
+</beans>
