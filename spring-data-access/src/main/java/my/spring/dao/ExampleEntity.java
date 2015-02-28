@@ -1,9 +1,17 @@
 package my.spring.dao;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
 public class ExampleEntity {
 
+    @Id
     private long id;
+    @Column
     private String name;
+    @Column
     private double someDouble;
 
 

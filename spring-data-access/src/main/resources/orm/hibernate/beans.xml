@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd 
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <bean id="myDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close" >
+        <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+        <property name="url" value="jdbc:hsqldb:hsql://localhost:9001"/>
+        <property name="username" value="sa"/>
+        <property name="password" value=""/>
+    </bean>
+
+
+    <bean id="mySessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="myDataSource"/>
+        <property name="mappingResources">
+            <list>
+                <value>product.hbm.xml</value>
+            </list>
+        </property>
+        <property name="hibernateProperties">
+            <value>
+                hibernate.dialect=org.hibernate.dialect.HSQLDialect
+            </value>
+        </property>
+    </bean>
+
+    <bean id="myDao" class="my.spring.dao.orm.hibernate.ExampleDAOImpl">
+        <property name="sessionFactory" ref="mySessionFactory"/>
+    </bean>
+
+
+    <!-- Установка транзакции -->
+    <bean id="transactionManager"
+          class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="mySessionFactory"/>
+    </bean>
+
+    <!-- Настройка транзакции на основе xml-->
+    <beans profile="xmlBaseTransactionDef">
+
+        <aop:config>
+            <aop:pointcut id="productServiceMethods"
+                          expression="execution(* example.ExampleEntityService.(..))"/>
+            <aop:advisor advice-ref="txAdvice" pointcut-ref="productServiceMethods"/>
+        </aop:config>
+
+        <tx:advice id="txAdvice" transaction-manager="transactionManager">    <!-- Если менеджер транзакции называеться
+                                                                            transactionManager его не обязательно
+                                                                            обьявлять в совете -->
+            <tx:attributes>
+                <tx:method name="increasePrice" propagation="REQUIRED"/>
+                <tx:method name="someOtherBusinessMethod" propagation="REQUIRES_NEW"/>
+                <tx:method name="*" propagation="SUPPORTS" read-only="true"/>
+            </tx:attributes>
+        </tx:advice>
+
+    </beans>
+
+    <!-- Или использовать аннотацию @Transaction с <tx:annotation-driven/> -->
+    <beans profile="annotationBaseTransactionDef">
+        <tx:annotation-driven/>
+    </beans>
+</beans>
