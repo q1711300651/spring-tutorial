@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jee="http://www.springframework.org/schema/jee"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd">
+
+    <!--Менеджер транзакции -->
+    <bean id="myTxManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="myEmf"/>
+    </bean>
+
+
+    <beans profile="spring-based">
+        <!-- Используй только для обычный приложений (не веб) или для интеграционных тестов
+            Такая фома JPA самая простая (нужно только назвать persistence unit ) и ограниченная
+            не льзя ссылатся на существюшие JDBC DataSource и поддержку глобальной транзакции
+        -->
+        <bean id="myEmfb" class="org.springframework.orm.jpa.LocalEntityManagerFactoryBean">
+            <property name="persistenceUnitName" value="myPersistenceUnitName"/>
+        </bean>
+    </beans>
+
+    <beans profile="jndi-based">
+        <beans>
+            <!-- Полчить менеджер через jndi сервера приложений-->
+            <jee:jndi-lookup id="myEmf" jndi-name="persistence/myPersistenceUnit"/>
+        </beans>
+    </beans>
+
+    <beans profile="local-container">
+        <!-- Использьуй для полной интеграции JPA в Spring приложение. Включаент веб контейнер (как Томкат),
+        декстопное, тесты -->
+        <bean id="myEmf" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+            <property name="dataSource" ref="someDataSource"/>
+            <property name="loadTimeWeaver">
+                <!-- Настройка изменени байт кода в момент загрузки клссов, в основном для поддержки механизма
+                транзакции
+                    Если уже указанно
+                    <context:load-time-weaver/> или @EnableLoadTimeWeaving
+                    в проекте, то эту опцию не обязательно настраивать
+                -->
+                <bean class="org.springframework.instrument.classloading.InstrumentationLoadTimeWeaver"/>
+            </property>
+        </bean>
+    </beans>
+
+    <beans profile="multiple-persistence-unit">
+        <!--
+            Для поддержки множества персистенц юнитов, спринг использует DefaultPersistenceUnitManager, в качестве
+            агргигатора, экономя на атвтоматичестом поиске
+        -->
+        <bean id="pum" class="org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager">
+            <property name="persistenceXmlLocations">
+                <list>
+                    <value>org/springframework/orm/jpa/domain/persistence-multi.xml</value>
+                    <value>classpath:/my/package/*/custom-persistence.xml</value>
+                    <value>classpath:META-INF/persistence.xml</value>
+                </list>
+            </property>
+            <property name="dataSources">
+                <map>
+                    <entry key="localDataSource" value-ref="local-db"/>
+                    <entry key="remoteDataSource" value-ref="remote-db"/>
+                </map>
+            </property>
+            <!-- if no datasource is specified, use this one -->
+            <property name="defaultDataSource" ref="remoteDataSource"/>
+        </bean>
+        <bean id="emf" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+            <property name="persistenceUnitManager" ref="pum"/>
+            <property name="persistenceUnitName" value="myCustomUnit"/>
+        </bean>
+    </beans>
+
+
+</beans>
