@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <!--
+        Для интграции с аннотацией @RequestBody, @ResponseBody
+        Прямая настройка конверторов зваросов
+
+        Пример реализации настройки чтения/записи XML для работы с Marshaller/Unmarshaller сущностями
+    -->
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+        <property name="messageConverters">
+            <!--
+            Возвращают список конврерторов что поддерженны для трансформации
+            -->
+            <util:list id="beanList">
+                <ref bean="stringHttpMessageConverter"/>
+                <ref bean="marshallingHttpMessageConverter"/>
+                <ref bean="jsonHttpMessageConverter"/>
+            </util:list>
+        </property>
+        <property name="synchronizeOnSession" value="true"/> <!--Указать асинхронный доступ к сессии -->
+    </bean>
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping">
+        <property name="removeSemicolonContent" value="true"/> <!-- Поддержка матричных параметров -->
+     </bean>
+
+    <bean id="stringHttpMessageConverter"
+          class="org.springframework.http.converter.StringHttpMessageConverter"/>
+    <bean id="marshallingHttpMessageConverter"
+          class="org.springframework.http.converter.xml.MarshallingHttpMessageConverter">
+        <!-- Укзать обработчики марашлинга/демаршалинга -->
+        <property name="marshaller" ref="castorMarshaller" />
+        <property name="unmarshaller" ref="castorMarshaller" />
+    </bean>
+    <bean id="castorMarshaller" class="org.springframework.oxm.castor.CastorMarshaller"/>
+
+    <bean id="jsonHttpMessageConverter"
+          class="org.springframework.http.converter.json.GsonHttpMessageConverter">
+    </bean>
+
+</beans>
