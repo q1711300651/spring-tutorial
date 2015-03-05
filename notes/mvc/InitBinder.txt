@@ -1,0 +1,27 @@
+@InitBinder
+    Аннотация позволяет контролировать связывания данных на прямую в класс контроллер
+    Такие методы, поддерживают все аргументы  @RequestMapping, кроме обьектов форм и подлежащих валидации.
+
+    Пример:
+
+            @Controller
+            public class MyFormController {
+                @InitBinder
+                public void initBinder(WebDataBinder binder) {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    dateFormat.setLenient(false);
+                    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, false));
+                }
+                // ...
+            }
+
+    Конфигурация WebBindingInitializer
+        Позволит указывать класс биндинга на моент загрузки контекста.
+        Пример:
+
+            <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+                <property name="cacheSeconds" value="0" />
+                <property name="webBindingInitializer">
+                    <bean class="org.springframework.samples.petclinic.web.ClinicBindingInitializer" />
+                </property>
+            </bean>

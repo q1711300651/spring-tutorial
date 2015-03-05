@@ -80,12 +80,31 @@ defaultValue = значение по умолчанию
 
 @SessionAttributes
 
+Указывает на сипсок имен атрибутов модели в сессию
 
 
+@CookieValue
 
+Аннотация позволяет получить доступ к кукки запроса.
+    Пример получить JSESSIONID:
+        public void displayHeaderInfo(@CookieValue("JSESSIONID") String cookie) {
 
+        }
+
+@RequestHeader
+
+    Получить доступ к хедерам запроса:
+        public void displayHeaderInfo(@RequestHeader("Accept-Encoding") String encoding,
+                @RequestHeader("Keep-Alive") long keepAlive) {
+            //...
+        }
+    Когда, аннотация используеться вместн с  Map<String,  String> или MultiValueMap<String,  String>, или HttpHeaders
+    то вернеться все заголовки
+
+    Таже можно получить данные разделенные запятой указывая String[] или List<String>
 
 @RestController
 
 Для более простого способа, работы с REST запросами, вметсто обьявлять их как @RequestMapping методы с  @ResponseBody
 Используеться аннотация @RestController вместо @Controller
+
