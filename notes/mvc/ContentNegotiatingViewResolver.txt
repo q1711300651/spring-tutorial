@@ -1,0 +1,61 @@
+ContentNegotiatingViewResolver
+
+    Предостовляет поддержку нескольких видиов отображение ресурсов, используя хедер  Content-Type
+    Не реализует представление, а скорее делегирует другим технологиям предсовление.
+
+    Пример настройки хедера
+
+    <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+
+        <!-- Карта поддержи меда типов-->
+        <property name="mediaTypes">
+            <map>
+                <entry key="atom" value="application/atom+xml"/>
+                <entry key="html" value="text/html"/>
+                <entry key="json" value="application/json"/>
+            </map>
+        </property>
+
+        <!--
+            Если запрос прийдет с .html, то обработчик ViewResolver, проверит доступных обработчиков для text/html.
+            InternalResourceViewResolver согалсуеться с даным типом, и запуститься именно он.
+
+        -->
+        <property name="viewResolvers">
+            <list>
+                <!-- возвращает предсовление основанное по имени бина -->
+                <bean class="org.springframework.web.servlet.view.BeanNameViewResolver"/>
+
+                <!-- Предостовляет обработку предсовления в JSP -->
+                <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+                    <property name="prefix" value="/WEB-INF/jsp/"/>
+                    <property name="suffix" value=".jsp"/>
+                </bean>
+            </list>
+        </property>
+
+        <property name="defaultViews">
+            <list>
+                <bean class="org.springframework.web.servlet.view.json.MappingJackson2JsonView" />
+            </list>
+        </property>
+
+    </bean>
+    <bean id="content" class="com.foo.samples.rest.SampleContentAtomView"/>
+
+    Код который вернет  Atom  RSS по урлу http://localhost/content.atom или http://localhost/content с хедером  Accept
+    http://localhost/content.atom or http://localhost/content, будет
+
+    @Controller
+    public class ContentController {
+
+        private List<SampleContent> contentList = new ArrayList<SampleContent>();
+
+        @RequestMapping(value="/content", method=RequestMethod.GET)
+        public ModelAndView getContent() {
+            ModelAndView mav = new ModelAndView();
+            mav.setViewName("content");
+            mav.addObject("sampleContentList", contentList);
+            return mav;
+        }
+    }

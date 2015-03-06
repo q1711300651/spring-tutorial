@@ -1,0 +1,15 @@
+redirect: - префиск для выполнение редиректа, что по сути действует как HttpServletResponse.sendRedirect()
+
+RedirectAttributes - аргумент контроллера, где можно передавать памаметры, только для редиркта
+    Пример:
+
+        @RequestMapping(value = "/files/{path}", method = RequestMethod.POST)
+        public String upload(...) {
+            // ...
+            // параметры, URL сигментов, автоматически доступны, и нет нужды их перезаполнять
+             return "redirect:files/{path}"; // абсолютный URL  redirect:http://myhost.com/some/arbitrary/path
+        }
+
+forward:
+    - обычно используеться если нужно динамически заменить технологию отображение
+    ( хотя вместо forward можно использовать цепочку предстовлений )

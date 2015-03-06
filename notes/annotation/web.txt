@@ -108,3 +108,20 @@ defaultValue = значение по умолчанию
 Для более простого способа, работы с REST запросами, вметсто обьявлять их как @RequestMapping методы с  @ResponseBody
 Используеться аннотация @RestController вместо @Controller
 
+@ControllerAdvice
+    Аннотация повзоляет регестрировать классы, через авто-обноружение по classpath. Автоматически подключаеться, когда
+    используеться Spring MVC
+
+    Аннотации что поддерживаеет @ControllerAdvice классы. @ExceptionHandler @InitBinder и @ModelAttribute
+
+        // Все цели, что аннотированные @RestController
+        @ControllerAdvice(annotations = RestController.class)
+        public class AnnotationAdvice {}
+
+        // Все контроллеры в укаханном пакете
+        @ControllerAdvice("org.example.controllers")
+        public class BasePackageAdvice {}
+
+        // Все контроллеры, что пренедлижат уазанному классу
+        @ControllerAdvice(assignableTypes = {ControllerInterface.class, AbstractController.class})
+        public class AssignableTypesAdvice {}

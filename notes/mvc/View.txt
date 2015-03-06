@@ -1,0 +1,63 @@
+Spring Web MVC контроллеры должны возвращать логическое имя представления или обьект View или ModelAndView
+
+Базовая конфигурация спринг, поддерживаает спискок обработичков представления:
+
+AbstractCachingViewResolver - абстактный обработчки что кэширует отображение
+
+XmlViewResolver - реализация ViewResolver, который поддерживает  фалй написанный на XML с тем же DTD как и
+                  Spring’s XML bean фабрики
+
+ResourceBundleViewResolver - реализация ViewResolver, для доступа к фалам рессром
+
+UrlBasedViewResolver - реализация ViewResolver, связывает логический путь представление с URL
+
+InternalResourceViewResolver - дочерний класс UrlBasedViewResolver для доступа к JSP, Servlets
+
+VelocityViewResolver/   - дочерний класс UrlBasedViewResolver для работы с шаблонами Velocity, FreeMarker
+FreeMarkerViewResolver
+
+ContentNegotiatingViewResolver - реализация ViewResolver, основанная на оглавлении "Accept"
+
+
+
+Настройка UrlBasedViewResolver для использования JSP, как технологии предстовлении
+
+<bean id="viewResolver"
+        class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+    <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+    <property name="prefix" value="/WEB-INF/jsp/"/>
+    <property name="suffix" value=".jsp"/>
+</bean>
+
+Когда контроллер вернет test, как логическое имя, то RequestDispatcher будет выполнит /WEB-INF/jsp/test.jsp.
+
+
+Связывание обработчиков представления
+
+Spring MVC поддерживает множество обработчиков, что повзоляет форимровать цепь обработчиков и переопределит их другими
+в случии каких-либо событий. Пример, где excel отчетов будет зпущен другой обработчик
+
+    <bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="prefix" value="/WEB-INF/jsp/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+    <bean id="excelViewResolver" class="org.springframework.web.servlet.view.XmlViewResolver">
+        <property name="order" value="1"/>
+        <property name="location" value="/WEB-INF/views.xml"/>
+    </bean>
+    <!-- in views.xml -->
+    <beans>
+        <bean name="report" class="org.springframework.example.ReportExcelView"/>
+    </beans>
+
+При реализации нескольких технологий предстовления, можно использовать ResourceBundleViewResolver:
+
+    <bean id="viewResolver"
+            class="org.springframework.web.servlet.view.ResourceBundleViewResolver">
+        <property name="basename" value="views"/>
+        <property name="defaultParentView" value="parentView"/>
+    </bean>
+
+
+
