@@ -1,0 +1,18 @@
+Поддрежка  ETag
+ ETag (entity tag) - это HTTP заголовок отвтета, используеться на сервере для определение изменений в содержимом URL,
+ Когда, предстовляет ETag заголовок, клиент может использовать это заголовок вместе с GET запросом
+
+ Поддрежку ETag реализует филтр
+
+    <filter>
+        <filter-name>etagFilter</filter-name>
+        <filter-class>org.springframework.web.filter.ShallowEtagHeaderFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>etagFilter</filter-name>
+        <servlet-name>petclinic</servlet-name>
+    </filter-mapping>
+
+ Фильтр генерит MD5 хєш, для всего контента( включая JSP ) и проверят с хешом в поле If-None-Match. Если они
+ сходятся, возвращаеться 304 в ответ. Фильтр не уменьшает нагрузку на сервер, так как представление все также
+ рендерится, но не загружает полосу передачи.

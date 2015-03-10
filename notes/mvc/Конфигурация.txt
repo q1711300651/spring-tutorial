@@ -1,0 +1,195 @@
+
+mvc:annotation-driven
+
+    Включает поиск по classpath классов, что имеют аннотацию MVC
+
+    Пример:
+            <?xml version="1.0" encoding="UTF-8"?>
+            <beans xmlns="http://www.springframework.org/schema/beans"
+                xmlns:mvc="http://www.springframework.org/schema/mvc"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="
+                    http://www.springframework.org/schema/beans
+                    http://www.springframework.org/schema/beans/spring-beans.xsd
+                    http://www.springframework.org/schema/mvc
+                    http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+                <mvc:annotation-driven />
+            </beans>
+
+
+@EnableWebMvc
+
+    Используеться вместе с @Configuration для подключениея MVC
+
+
+
+
+Включает поддржку
+    1. Используеться Spring 3 конвертация типов вместо JavaBeans
+    2. Формотирования чисео для полей используя  @NumberFormat  annotation.
+    3. Форматирования следующих типов Date, Calendar, Long, и Joda Time используя @DateTimeFormat annotation.
+    4. Валидация в  @Controller используя @Valid, если  есть JSR-303 поставщик.
+    5. HttpMessageConverter  для @RequestBody методав и @ResponseBody метоло.
+    Вовзращает занчение из @RequestMapping или @ExceptionHandler методов.
+    Полный лист конвертеров:
+        a. ByteArrayHttpMessageConverter конвертирует в массив байтов.
+        b. StringHttpMessageConverter конвертирует в  strings.
+        c. ResourceHttpMessageConverter  конвертирует в/из  org.springframework.core.io.Resource для всех медиа типов.
+        d. SourceHttpMessageConverter конвертирует в/из javax.xml.transform.Source.
+        e. FormHttpMessageConverter  конвертирует в/из  MultiValueMap<String,String>.
+        f. Jaxb2RootElementHttpMessageConverter конвертирует Java обьекты в/из XML — добален если есть JAXB2 и Jackson 2 XML не добавлено в classpath.
+        g. MappingJackson2HttpMessageConverter конвертирует в/из JSON — если Jackson 2 is  в classpath.
+        h. MappingJackson2XmlHttpMessageConverter конвертирует в/из XML — если Jackson 2 XML в classpath.
+        i. AtomFeedHttpMessageConverter конвертирует Atom feeds — если  Rome в classpath.
+        j. RssChannelHttpMessageConverter конвертирует RSS feeds — если Rome в classpath.
+
+
+Доп. Конфигурация
+
+    1.В Java
+    @Configuration
+    @EnableWebMvc
+    public class WebConfig extends WebMvcConfigurerAdapter {
+        @Override
+        protected void addFormatters(FormatterRegistry registry) {
+            // Add formatters and/or converters
+        }
+        @Override
+        public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+            // Configure the list of HttpMessageConverters to use
+        }
+    }
+
+    2.XML
+
+    <mvc:annotation-driven conversion-service="conversionService">
+        <mvc:message-converters>
+            <bean class="org.example.MyHttpMessageConverter"/>
+            <bean class="org.example.MyOtherHttpMessageConverter"/>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+        <property name="formatters">
+            <list>
+                <bean class="org.example.MyFormatter"/>
+                <bean class="org.example.MyOtherFormatter"/>
+            </list>
+        </property>
+    </bean>
+
+Перехватчики:
+
+        @Configuration
+        @EnableWebMvc
+        public class WebConfig extends WebMvcConfigurerAdapter {
+            @Override
+            public void addInterceptors(InterceptorRegistry registry) {
+                registry.addInterceptor(new LocaleInterceptor());
+                registry.addInterceptor(new ThemeInterceptor()).addPathPatterns("/**").excludePathPatterns("/
+        admin/**");
+                registry.addInterceptor(new SecurityInterceptor()).addPathPatterns("/secure/*");
+            }
+        }
+
+
+        <mvc:interceptors>
+            <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor" />
+            <mvc:interceptor>
+                <mvc:mapping path="/**"/>
+                <mvc:exclude-mapping path="/admin/**"/>
+                <bean class="org.springframework.web.servlet.theme.ThemeChangeInterceptor" />
+            </mvc:interceptor>
+            <mvc:interceptor>
+                <mvc:mapping path="/secure/*"/>
+                <bean class="org.example.SecurityInterceptor" />
+            </mvc:interceptor>
+        </mvc:interceptors>
+
+
+Настройка отношения типо в content-type:
+
+    <mvc:annotation-driven content-negotiation-manager="contentNegotiationManager" />
+    <bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+        <property name="favorPathExtension" value="false" />
+        <property name="favorParameter" value="true" />
+        <property name="mediaTypes" >
+            <value>
+                json=application/json
+                xml=application/xml
+            </value>
+        </property>
+    </bean>
+
+
+Настройка технологий предстовления:
+
+    JAVA:
+    @Configuration
+    @EnableWebMvc
+    public class WebConfig extends WebMvcConfigurerAdapter {
+
+        @Override
+        public void configureViewResolvers(ViewResolverRegistry registry) {
+            registry.enableContentNegotiation(new MappingJackson2JsonView());
+            registry.freeMarker().cache(false);
+        }
+
+        @Bean
+        public FreeMarkerConfigurer freeMarkerConfigurer() {
+            FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
+            configurer.setTemplateLoaderPath("/WEB-INF/");
+            return configurer;
+        }
+    }
+
+
+
+    XML:
+    <mvc:view-resolvers>
+        <mvc:content-negotiation>
+            <mvc:default-views>
+                <bean class="org.springframework.web.servlet.view.json.MappingJackson2JsonView" />
+            </mvc:default-views>
+        </mvc:content-negotiation>
+        <mvc:freemarker cache="false" />
+    </mvc:view-resolvers>
+
+    <mvc:freemarker-configurer>
+        <mvc:template-loader-path location="/freemarker" />
+    </mvc:freemarker-configurer>
+
+
+Настройка статических ресурсов:
+
+
+    JAVA:
+
+        @EnableWebMvc
+        @Configuration
+        public class WebConfig extends WebMvcConfigurerAdapter {
+            @Override
+            public void addResourceHandlers(ResourceHandlerRegistry registry) {
+                registry.addResourceHandler("/resources/**")
+                        .addResourceLocations("/", "classpath:/META-INF/public-web-resources/");
+            }
+        }
+
+    XML:
+        <mvc:resources mapping="/resources/**" location="/, classpath:/META-INF/public-web-resources/"/>
+
+
+передача задачи к сервлету по умолчанию
+
+Используеться когда DispatcherServlet использует путь "/", закрыввя доступ к стандартному сервлету контейнера
+
+    @Configuration
+    @EnableWebMvc
+    public class WebConfig extends WebMvcConfigurerAdapter {
+        @Override
+        public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+            configurer.enable();
+        }
+    }
+
+    <mvc:default-servlet-handler/>
+

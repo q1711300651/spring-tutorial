@@ -1,0 +1,77 @@
+Spring MVC использует два способа конфигурации
+    1. Commons FileUpload
+    2. Servlet 3.0 multipart request parsing
+
+По умолчанию спринг не поддерживает обработку multipart запросов, так как больщенство разработчиков, предпочитают
+выполнять их сами.
+Что бы добавить обработчика, нужно указать его в контексте приложения
+
+Использлвать Commons FileUpload ( + библиотека  commons-fileupload.jar ):
+    <bean id="multipartResolver"
+            class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+
+        <!-- указать лимит на максимальный размер файла -->
+        <property name="maxUploadSize" value="100000"/>
+    </bean>
+
+Использовать Servlet 3.0 multipart("multipart-config")
+
+    web.xml:
+        <multipart-config>
+            <location>/tmp</location>
+            <max-file-size>20848820</max-file-size>
+            <max-request-size>418018841</max-request-size>
+            <file-size-threshold>1048576</file-size-threshold>
+        </multipart-config>
+
+
+    <bean id="multipartResolver"
+            class="org.springframework.web.multipart.support.StandardServletMultipartResolver">
+    </bean>
+
+Обработка файла на клинете
+
+    <html>
+        <head>
+            <title>Upload a file please</title>
+        </head>
+        <body>
+            <h1>Please upload a file</h1>
+            <form method="post" action="/form" enctype="multipart/form-data">
+                <input type="text" name="name"/>
+                <input type="file" name="file"/>
+                <input type="submit"/>
+            </form>
+        </body>
+    </html>
+
+Контроллер:
+
+    @Controller
+    public class FileUploadController {
+
+        @RequestMapping(value = "/form", method = RequestMethod.POST)
+        public String handleFormUpload(@RequestParam("name") String name,
+                @RequestParam("file") MultipartFile file) {
+            if (!file.isEmpty()) {
+                byte[] bytes = file.getBytes();
+                // store the bytes somewhere
+                return "redirect:uploadSuccess";
+            }
+            return "redirect:uploadFailure";
+        }
+    }
+
+Пример для использования в среде  Servlet  3.0:
+
+    @Controller
+    public class FileUploadController {
+
+        @RequestMapping(value = "/form", method = RequestMethod.POST)
+        public String handleFormUpload(@RequestParam("name") String name,
+                @RequestParam("file") Part file) {
+            InputStream inputStream = file.getInputStream();
+            // store bytes from uploaded file somewhere
+            return "redirect:uploadSuccess";
+        }
+    }
