@@ -1,0 +1,48 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:webflow="http://www.springframework.org/schema/webflow-config" xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.0.xsd  http://www.springframework.org/schema/webflow-config
+    http://www.springframework.org/schema/webflow-config/spring-webflow-config-2.4.xsd">
+
+    <!--Настройка тут-->
+</beans>
+
+
+
+Регистрация потока:
+
+    <webflow:flow-registry id="flowRegistry" base-path="/WEB-INF">
+        <webflow:flow-location path="/WEB-INF/flows/booking/booking.xml" />
+    </webflow:flow-registry>
+
+
+Регистрация Испольнителя:
+
+    <webflow:flow-executor id="flowExecutor" />
+
+
+Указать путь к контексту потока:
+
+    <webflow:flow-location path="/WEB-INF/flows/booking/booking.xml" id="bookHotel" />
+
+
+
+Регистрация доп. аттрибутов для потока:
+
+    <webflow:flow-location path="/WEB-INF/flows/booking/booking.xml">
+        <webflow:flow-definition-attributes>
+            <webflow:attribute name="caption" value="Books a hotel" />
+        </webflow:flow-definition-attributes>
+    </webflow:flow-location>
+
+
+Цепочка наслоевания для потоков:
+
+    <!-- my-system-config.xml -->
+        <webflow:flow-registry id="flowRegistry" parent="sharedFlowRegistry">
+            <webflow:flow-location path="/WEB-INF/flows/booking/booking.xml" />
+        </webflow:flow-registry>
+
+    <!-- shared-config.xml -->
+    <webflow:flow-registry id="sharedFlowRegistry">
+        <!-- Global flows shared by several applications -->
+    </webflow:flow-registry>

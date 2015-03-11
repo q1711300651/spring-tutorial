@@ -1,0 +1,74 @@
+import org.springframework.context.annotation.Configuration;
+import org.springframework.webflow.config.AbstractFlowConfiguration;
+
+
+@Configuration
+public class WebFlowConfig extends AbstractFlowConfiguration {
+
+    //Конфигурация...
+}
+
+
+Регистрация потока:
+
+
+    @Bean
+    public FlowDefinitionRegistry flowRegistry() {
+        return getFlowDefinitionRegistryBuilder()
+            .setBasePath("/WEB-INF")
+            .addFlowLocation("/WEB-INF/flows/booking/booking.xml")
+            .build();
+    }
+
+Регистрация Испольнителя:
+
+   @Bean
+   public FlowExecutor flowExecutor() {
+        return getFlowExecutorBuilder(flowRegistry()).build();
+   }
+
+Указать путь к контексту потока:
+
+        return getFlowDefinitionRegistryBuilder()
+                    .addFlowLocation("/WEB-INF/flows/booking/booking.xml", "bookHotel")
+                    .build();
+
+
+Регистрация доп. аттрибутов для потока:
+
+    Map<String, Object> attrs = ... ;
+
+    return getFlowDefinitionRegistryBuilder()
+        .addFlowLocation("/WEB-INF/flows/booking/booking.xml", null, attrs)
+        .build();
+
+
+
+Цепочка наслоевания для потоков:
+
+    @Configuration
+    public class WebFlowConfig extends AbstractFlowConfiguration {
+
+        @Autowired
+        private SharedConfig sharedConfig;
+
+        @Bean
+        public FlowDefinitionRegistry flowRegistry() {
+            return getFlowDefinitionRegistryBuilder()
+                .setParent(this.sharedConfig.sharedFlowRegistry())
+                .addFlowLocation("/WEB-INF/flows/booking/booking.xml")
+                .build();
+    }
+
+    }
+
+    @Configuration
+    public class SharedConfig extends AbstractFlowConfiguration {
+
+        @Bean
+        public FlowDefinitionRegistry sharedFlowRegistry() {
+            return getFlowDefinitionRegistryBuilder()
+                .addFlowLocation("/WEB-INF/flows/shared.xml")
+                .build();
+        }
+    }
