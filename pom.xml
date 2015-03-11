@@ -9,6 +9,7 @@
         <module>spring-core</module>
         <module>spring-data-access</module>
         <module>spring-web</module>
+        <module>spring-webflow</module>
     </modules>
     <packaging>pom</packaging>
     <name>SpringTutorial</name>

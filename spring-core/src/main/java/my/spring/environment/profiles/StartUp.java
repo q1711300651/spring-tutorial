@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class StartUp {
 
@@ -37,7 +37,7 @@ public class StartUp {
     @Test
     public void testNotActiveProfile() {
         ContextParam ctxParam = ctx.getBean( "ctxParam", ContextParam.class );
-        assertEquals(ctxParam.getType(), "Not Dev");
+        assertEquals( ctxParam.getType(), "Not Dev" );
     }
 
 
