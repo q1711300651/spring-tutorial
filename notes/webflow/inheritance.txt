@@ -1,0 +1,57 @@
+Наследования потоков подобно Java наследованию, за исключенем:
+    1. Поток потомок не можнет переопределять елементы потока родителя. Сохожие елементы будут слиты в одно, уникальные
+       елементы родителя будут добавлены потомку
+    2. Потомок может наследоваться от нескольких родителей. Наследник будет обьединяться с родителями в порядке их
+       обьявления с лево на право, каждого новое обявление будет выполнять слияние подобных елементов
+
+<flow parent="common-transitions, common-states">
+
+Так же можно выполнить наследования на уровне состояния:
+
+    <view-state id="child-state" parent="parent-flow#parent-view-state">
+
+Состояния должны быть одного типа
+
+
+Поток может быть асбтрактным
+
+    <flow abstract="true">
+
+
+Пути к рессурсам должны быть абсолютными, не абсолютны пути могут исказаится в случае слияния
+
+Алгорим слияния
+    существует два вида элементов при слиянии:
+        1. Доступные к слиянию
+        2. Не доступные
+
+    Доступные
+
+        • action-state: id
+        • attribute: name
+        • decision-state: id
+        • end-state: id
+        • flow: always merges
+        • if: test
+        • on-end: always merges
+        • on-entry: always merges
+        • on-exit: always merges
+        • on-render: always merges
+        • on-start: always merges
+        • input: name
+        • output: name
+        • secured: attributes
+        • subflow-state: id
+        • transition: on and on-exception
+        • view-state: id
+
+   Не доступные
+        • bean-import
+        • evaluate
+        • exception-handler
+        • persistence-context
+        • render
+        • set
+        • var
+
+
