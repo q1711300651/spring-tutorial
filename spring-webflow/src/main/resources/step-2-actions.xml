@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
+      http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+
+    <!--
+        События могу быть вызваны в следующих точках потока:
+            • On flow start
+            • On state entry
+            • On view render
+            • On transition execution
+            • On state exit
+            • On flow end
+     -->
+
+    <input name="hotelId"/>
+    <!-- Точка потока-->
+    <on-start>
+        <!--
+        В большенсве случаев для выполение каких либо действий, используеться елемент evaluate
+        expression  - принемает Spring EL с интсрукцией выполенения
+        result - если выражение возвращает значение то это значение можно поместить в область названную flowScope
+        result-type - используеться когда значение нужно конвертировать в специальный тип
+         -->
+        <evaluate expression="boolingService.createBooking(hotelId, currentUser.name)" result="flowScore.booking"
+                  result-type="bookingModel"/>
+    </on-start>
+
+    <view-state id="enterBookingDetails">
+
+        <transition on="submit" to="reviewBooking" />
+    </view-state>
+
+
+    <view-state id="reviewBooking">
+        <transition on="confirm" to="bookingConfirmed" />
+        <transition on="revise" to="enterBookingDetails" />
+        <transition on="cancel" to="bookingCancelled" />
+    </view-state>
+
+
+    <end-state id="bookingConfirmed" />
+    <end-state id="bookingCancelled" />
+</flow>

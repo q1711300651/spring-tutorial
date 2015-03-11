@@ -1,0 +1,20 @@
+<persistence-context />
+    Создает PersistenceContext в области flowScope на старте потока. Такой контекст, выполняет работу с сущностями
+    в изоляции, и загружает в базу только по оканчании потока.
+
+Настройка, слушателся для потока HibernateFlowExecutionListener (hibernate), JpaFlowExecutionListener(JPA) :
+
+    <webflow:flow-executor id="flowExecutor" flow-registry="flowRegistry">
+        <webflow:flow-execution-listeners>
+            <webflow:listener ref="jpaFlowExecutionListener" />
+        </webflow:flow-execution-listeners>
+    </webflow:flow-executor>
+
+    <bean id="jpaFlowExecutionListener" class="org.springframework.webflow.persistence.JpaFlowExecutionListener">
+          <constructor-arg ref="entityManagerFactory" />
+          <constructor-arg ref="transactionManager" />
+    </bean>
+
+Запуск коммита по завершению потока
+
+<end-state id="bookingConfirmed" commit="true" />

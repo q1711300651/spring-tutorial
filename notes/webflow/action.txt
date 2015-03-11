@@ -1,0 +1,78 @@
+action-state
+    Используется, когда нужно вызвать действие, когда переход в другое состояние зависит от результата действий
+
+    <action-state id="moreAnswersNeeded">
+        <evaluate expression="interview.moreAnswersNeeded()" />
+        <transition on="yes" to="answerQuestions" />
+        <transition on="no" to="finish" />
+    </action-state>
+
+
+Поскольку переходы активируються (transition) по событию возвращаемое значение методов должно быть замапленно к
+обьекту Event. Пример, как обычные значение мапяться к событию:
+
+        java.lang.String -> строковому значению
+        java.lang.Boolean -> yes ( true), no ( false)
+        java.lang.Enum -> имени Enum
+        любой другой тип -> success
+
+decision-state
+    Используеться, как альтернатива для action-state, когда нужно просто определить переходы от решения пользователя
+
+    <decision-state id="moreAnswersNeeded">
+        <if test="interview.moreAnswersNeeded()" then="answerQuestions" else="finish" />
+    </decision-state>
+
+
+
+on-start
+    При запуске потока
+
+on-entry
+    Выполняеться всего раз при вхождении в состояния
+
+on-exit
+    Выполняеться перед выходом из состояния
+
+on-end
+    Выполняеться перед завершением потока
+
+on-render
+    Выполняеться перед прорисовкой состояния
+
+
+Цепочка действий
+
+    <action-state id="doTwoThings">
+        <evaluate expression="service.thingOne()">
+            <attribute name="name" value="thingOne" />
+        </evaluate>
+        <evaluate expression="service.thingTwo()">
+            <attribute name="name" value="thingTwo" />
+        </evaluate>
+        <transition on="thingTwo.success" to="showResults" />
+    </action-state>
+
+Потоковое дейстиве
+
+
+Пример реализации отображение pdf документа, на выполения дейтсвия printBoardingPassAction
+
+    <view-state id="reviewItinerary">
+        <transition on="print">
+            <evaluate expression="printBoardingPassAction" />
+        </transition>
+    </view-state>
+
+
+        public class PrintBoardingPassAction extends AbstractAction {
+
+            public Event doExecute(RequestContext context) {
+                // получение потока PDF...
+                // - Доступ к HttpServletResponse через
+                context.getExternalContext().getNativeResponse();
+                // - Сигнал о завершении операции:
+                context.getExternalContext().recordResponseComplete();
+                return success();
+            }
+        }

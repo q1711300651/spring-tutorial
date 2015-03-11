@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+
+    <!--
+        Потоки могут определять собственные переменные, включая @Autowired
+        Убедитесь что переменная реализует Serializable
+
+        Области вилимости:
+            • Flow Scope ( глобальная для потока ) Serializable
+                <evaluate expression="searchService.findHotel(hotelId)" result="flowScope.hotel" />
+            • View Scope ( view-state ) Serializable
+                <evaluate expression="searchService.findHotel(hotelId)" result="viewScope.hotel" />
+            • Request Scope ( на запрос )
+                <set name="requestScope.hotelId" value="requestParameters.id" type="long" />
+            • Flash Scope ( создаеться на открытия потока,
+              очишаеться на каждом view и уничтожаеться при закрытии ) Serializable
+                 <set name="flashScope.statusMessage" value="'Booking confirmed'" />
+            • Conversation Scope ( переменная родительсокого потока, сохраняеться в сессии ) Serializable
+                <evaluate expression="searchService.findHotel(hotelId)" result="conversationScope.hotel" />
+    -->
+    <var name="helloVar" class="java.lang.Integer"/>
+
+    <!--
+        Получить доступ к:
+            Параметрам запроса ( requestParameters.имя параметра )
+            Текущему событию (currentEvent.attributes | currentEvent )
+            Пользователю ( currentUser )
+            resourceBundle|messageContext
+        Доступ к классам потоков:
+            flowRequestContext - API текщего запроса потока
+            flowExecutionContext - API теукщего состояния потока
+            flowExecutionUrl - доступ к относительному пути текущего состояиния потока
+            externalContext - Доступ к клинетскогому окружению, включая пользовательские аттрибуты сессии
+
+    -->
+</flow>

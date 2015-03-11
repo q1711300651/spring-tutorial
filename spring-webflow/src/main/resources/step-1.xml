@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
+      http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+<!--
+    Первый шаг для разработки веб приложения на основе webflow, это описание поведение потоков. Это позволяет
+    сфокусироваться на основном поведении пользовательского интерфейса
+-->
+
+    <!--
+        Обьявляет шаг состояния отображние в потоке
+        По соглашению, view-state id указывает на файл шаблона отображения где поток находиться
+        К примере, указанный view-state, может отображать файл:
+            /WEB-INF/hotels/booking/enterBookingDetails.xhtml
+        если поток находиться в директории
+            /WEB-INF/hotels/booking
+
+    -->
+    <view-state id="enterBookingDetails">
+        <!-- transition обрабатывает события которые могу возникнуть в view-state
+            Эта трансляция выводит подробное описание
+        -->
+        <transition on="submit" to="reviewBooking" />
+    </view-state>
+
+
+    <view-state id="reviewBooking">
+        <transition on="confirm" to="bookingConfirmed" />
+        <transition on="revise" to="enterBookingDetails" />
+        <transition on="cancel" to="bookingCancelled" />
+    </view-state>
+
+    <!--
+        end-state - указывает конец потока
+    -->
+    <end-state id="bookingConfirmed" />
+    <end-state id="bookingCancelled" />
+
+</flow>

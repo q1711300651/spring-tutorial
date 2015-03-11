@@ -1,0 +1,39 @@
+transition ( Переход )
+
+    Переходы могут выполнять, как не удивительно, переход в другое представление, выполнять действие и
+    перегуржать текущие, или только фрагмент текущего.
+
+
+Пример выполнение действия для перехода, подробнее смотри
+    my.spring.webflow.transition.BookingAction
+
+    <transition on="submit" to="bookingConfirmed">
+        <evaluate expression="bookingAction.makeBooking(booking, messageContext)" />
+    </transition>
+
+
+Глобальные переходы
+    Используються когда нужно предоставить одну обработку во всех отображениях
+
+    <global-transitions>
+        <transition on="login" to="login" />
+        <transition on="logout" to="logout" />
+    </global-transitions>
+
+
+Действия на события
+    Если переход не имеет цели, то его обычно используют для обработки событий, и вовзвращении перерисованной
+    передстовления или его части
+
+    <transition on="event">
+        Обработка события
+    </transition>
+
+Перерисовка части представления
+    render елемент используеться для указания перерисовки только части страницы, атрибут должен указывать на id
+           елемента который нужно перерисовать. либо несколько елементов, через запятую
+
+    <transition on="next">
+        <evaluate expression="searchCriteria.nextPage()" />
+        <render fragments="searchResultsFragment" />
+    </transition>
