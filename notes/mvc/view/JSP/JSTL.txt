@@ -1,0 +1,35 @@
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="prefix" value="/WEB-INF/jsp/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    Spring form
+
+        <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+
+     Для поддержки простого доступа к Spring Web MVC
+
+
+        <form:form commandName="user">
+            <table>
+                <tr>
+                    <td>First Name:</td>
+                    <!-- Значение береться из обьекта помещенного из в контекст страницы -->
+                    <td><form:input path="firstName" /></td>
+                </tr>
+                <tr>
+                    <td>Last Name:</td>
+                    <!-- Значение береться из обьекта помещенного из в контекст страницы -->
+                    <td><form:input path="lastName" /></td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <input type="submit" value="Save Changes" />
+                    </td>
+                </tr>
+            </table>
+        </form:form>
+
+
+
