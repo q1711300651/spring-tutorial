@@ -1,0 +1,131 @@
+STOMP — протокол обмена сообщениями, созданный предельно простым.
+Основан на фреймах по образцу HTTP. Фрейм состоит из команды, необязательных заголовков и необязательного тела.
+
+Пример https://github.com/rstoyanchev/spring-websocket-portfolio
+
+Например, приложение Stock Portfolio может рассылать котировки, клиент пошлет фрейм SUBSCRIBE,
+где заголовок «destination» показывает на что конкретно он подписывается:
+
+SUBSCRIBE
+id:sub-1
+destination:/topic/price.stock.*
+
+
+Как только котировки акций становятся доступными,
+сервер отправляет фрейм MESSAGE с соответствующим «destination» и идентификатором подписки, а
+также заголовок «content-type» и тело:
+
+MESSAGE
+subscription:sub-1
+message-id:wm2si1tj-4
+content-type: application/json
+destination:/topic/stocks.PRICE.STOCK.NASDAQ.EMC
+
+{\"ticker\":\"EMC\",\"price\":24.19}
+
+
+
+
+Настройкая STOMP поверх WebSocket на стороне Клиента:
+
+Java
+    @Configuration
+    @EnableWebSocketMessageBroker
+    public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+        @Override
+        public void configureMessageBroker(MessageBrokerRegistry config) {
+            config.setApplicationDestinationPrefixes("/app");
+            config.enableSimpleBroker("/queue", "/topic");
+        }
+
+        @Override
+        public void registerStompEndpoints(StompEndpointRegistry registry) {
+            registry.addEndpoint("/portfolio").withSockJS();
+        }
+        // ...
+    }
+XML
+    <beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:websocket="http://www.springframework.org/schema/websocket"
+        xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/websocket
+            http://www.springframework.org/schema/websocket/spring-websocket.xsd">
+        <websocket:message-broker application-destination-prefix="/app">
+            <websocket:stomp-endpoint path="/portfolio">
+                <websocket:sockjs/>
+            </websocket:stomp-endpoint>
+            <websocket:simple-broker prefix="/queue, /topic"/>
+            ...
+        </websocket:message-broker>
+    </beans>
+
+Чтобы объединить это все в браузере мы используем stomp.js и клиент SockJS:
+
+var socket = new SockJS("/spring-websocket-portfolio/portfolio");
+var stompClient = Stomp.over(socket);
+    stompClient.connect({}, function(frame) {
+        ...do something with message
+    }
+
+без SockJS:
+
+var socket = new WebSocket("/spring-websocket-portfolio/portfolio");
+var stompClient = Stomp.over(socket);
+stompClient.connect({}, function(frame) {
+    ...do something with message
+}
+
+
+
+Потоки сообщенией
+
+Когда точка соединения STOMP настроенна Spring приложение дейтсвует как STOMP броккер.
+
+    Message - сообшение
+    MessageHandler - контракт для обработки сообщений
+    MessageChannel - контракт для отпарвки/получения сообешений
+    SubscribableChannel - контракт для оповещение подписчиков
+    ExecutorSubscribableChannel - конкретное реализация MessageChannel, которая может отправлять сообщение ассинхронно
+
+    clientInboundChannel - каннал для входящий сообщений от WebSocket клиентов
+    clientOutboundChannel каннал иходящих сообщение для WebSocket клиентов
+    brokerChannel - каннал сообщений для брокера из приожения
+
+Пример реализации на Java
+
+    @Configuration
+    @EnableWebSocketMessageBroker
+    public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    }
+        @Override
+        public void registerStompEndpoints(StompEndpointRegistry registry) {
+            registry.addEndpoint("/portfolio");
+        }
+
+        @Override
+        public void configureMessageBroker(MessageBrokerRegistry registry) {
+            registry.setApplicationDestinationPrefixes("/app");
+            registry.enableSimpleBroker("/topic");
+        }
+    }
+
+    @Controller
+    public class GreetingController {
+
+        @MessageMapping("/greeting") {
+        public String handle(String greeting) {
+            return "[" + getTimestamp() + ": " + greeting;
+        }
+    }
+
+    Порядок действий брокера:
+
+    1.WebSocket клиент подлючаеться к точке соединения /portfolio
+    2.Пользавотель отправляеться к /app/greeting через clientInboundChannel и переходит к GreetingController
+      контроллер добавляет текущие время и возвращает значени в brokerChannel как сообщение адресата "/topic/greeting"
+    3.броке возвращает сообщение к подписчикам и пропускает его через clientOutboundChannel

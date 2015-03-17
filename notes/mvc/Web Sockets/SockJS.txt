@@ -1,0 +1,19 @@
+SockJS
+    Основная задача SockJS предоставить рабочую альтернативу  WebSocket  API, для неподдерживающего WebSocket окружения
+
+Подлючение:
+
+    JAVA:
+     @Override
+        public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+            registry.addHandler(myHandler(), "/myHandler").withSockJS();
+        }
+
+    XML:
+
+        <websocket:handlers>
+            <websocket:mapping path="/myHandler" handler="myHandler"/>
+            <websocket:sockjs/>
+        </websocket:handlers>
+
+В браузере использовать https://github.com/sockjs/sockjs-client, что эмулирует W3C WebSocket API
