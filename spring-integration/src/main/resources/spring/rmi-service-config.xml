@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="accountService" class="my.spring.remouting.AccountServiceImpl">
+        <!-- Доп. параметр, если есть -->
+    </bean>
+
+    <bean class="org.springframework.remoting.rmi.RmiServiceExporter">
+        <!-- Не обязательно что бы имя сповпадало с именем сервиса -->
+        <property name="serviceName" value="AccountService"/>
+        <property name="service" ref="accountService"/>
+        <property name="serviceInterface" value="my.spring.remouting.AccountService"/>
+
+        <!-- Порт по умолчанию -->
+        <property name="registryPort" value="1199" />
+
+        <!--
+        servicePort - по умолчанию 0, это значит, что будет использован анонимный порт для коммуниакции с сервером
+        -->
+    </bean>
+
+    <!-- Настройка клиента -->
+
+    <bean class="my.spring.remouting.SimpleClient">
+        <property name="accountService" value="clAccountService"/>
+    </bean>
+
+    <bean id="clAccountService" class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
+        <property name="serviceUrl" value="rmi://HOST:1199/AccountService"/>
+        <property name="serviceInterface" value="my.spring.remouting.AccountService"/>
+    </bean>
+</beans>

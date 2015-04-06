@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <!--
+        Спринг предостовляет HTTP invokers использует стандартный Java serialization механизм.
+
+        Подобное описание позволяет получить доступ к компоненту, через DispatcherServlet
+
+        Альтернатива использовать HttpInvokerServiceExporter в руте 'WEB-INF/applicationContext.xml' через
+
+        <servlet>
+            <servlet-name>accountExporter</servlet-name>
+            <servlet-class>org.springframework.web.context.support.HttpRequestHandlerServlet</servlet-class>
+        </servlet>
+        <servlet-mapping>
+            <servlet-name>accountExporter</servlet-name>
+            <url-pattern>/remoting/AccountService</url-pattern>
+        </servlet-mapping>
+
+    -->
+    <bean id="accountService" class="my.spring.remouting.AccountServiceImpl">
+        <!-- Доп. параметр, если есть -->
+    </bean>
+
+    <bean name="/AccountService" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
+        <property name="service" ref="accountService" />
+        <property name="serviceInterface" value="my.spring.remouting.AccountService"/>
+    </bean>
+
+    <!-- Если сервисы, должны работать вне контейнера сервлетов, можно сконфигурировать через Java 6 встроенный сервис -->
+    <beans profile="embedded">
+        <bean name="accountExporter"
+              class="org.springframework.remoting.httpinvoker.SimpleHttpInvokerServiceExporter">
+            <property name="service" ref="accountService"/>
+            <property name="serviceInterface" value="example.AccountService"/>
+        </bean>
+        <bean id="httpServer"
+              class="org.springframework.remoting.support.SimpleHttpServerFactoryBean">
+            <property name="contexts">
+                <util:map>
+                    <entry key="/remoting/AccountService" value-ref="accountExporter"/>
+                </util:map>
+            </property>
+            <property name="port" value="8080" />
+        </bean>
+    </beans>
+
+    <!-- Клинетская сторона -->
+    <beans profile="client">
+        <!--
+            По умолчанию HttpInvokerProxyFactoryBean использует стандартный JDK HTTP функционал, но можно
+            сконфигурировать на использование HttpComponents, указав их в httpInvokerRequestExecutor
+
+            <property name="httpInvokerRequestExecutor">
+                  <bean class="org.springframework.remoting.httpinvoker.HttpComponentsHttpInvokerRequestExecutor"/>
+            </property>
+        -->
+        <bean id="httpInvokerProxy" class="org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean">
+            <property name="serviceUrl" value="http://remotehost:8080/remoting/AccountService"/>
+            <property name="serviceInterface" value="example.AccountService"/>
+        </bean>
+
+
+    </beans>
+</beans>
