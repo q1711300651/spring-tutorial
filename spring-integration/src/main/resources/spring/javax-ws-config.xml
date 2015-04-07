@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:wss="http://jax-ws.dev.java.net/spring/servlet"
+       xmlns:ws="http://jax-ws.dev.java.net/spring/core"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://jax-ws.dev.java.net/spring/servlet http://jax-ws.dev.java.net/spring/servlet.xsd http://jax-ws.dev.java.net/spring/core http://jax-ws.dev.java.net/spring/core.xsd">
+
+
+    <!--
+        Использование Jax-ws через встроенный сервер
+        По такому сценарию endpoint управляеться как бин Спринга, подобный сервис будет зарегестрирован в
+        JAX-WS, но управляеться будет контейнером спринга.
+    -->
+    <bean class="org.springframework.remoting.jaxws.SimpleJaxWsServiceExporter">
+        <property name="baseAddress" value="http://localhost:8080/" />
+    </bean>
+
+    <bean id="accountServiceEndPoint" class="my.spring.remouting.jaxws.AccountServiceEndPoint">
+        <!-- ... -->
+    </bean>
+
+    <!--
+
+        или
+        Через расширение, позволяющее обьединить JAX-WS и Spring на базе простого контейнера сервлета tomcat
+
+    <servlet>
+    	<servlet-name>jaxws-servlet</servlet-name>
+    	<servlet-class> com.sun.xml.ws.transport.http.servlet.WSSpringServlet</servlet-class>
+  	</servlet>
+	<servlet-mapping>
+	    <servlet-name>jaxws-servlet</servlet-name>
+	    <url-pattern>/hello</url-pattern>
+    </servlet-mapping>
+
+    -->
+
+    <wss:binding url="/accountService">
+        <wss:service >
+            <ws:service bean="#accountService"/>
+        </wss:service>
+    </wss:binding>
+
+    <bean id="accountService" class="my.spring.remouting.AccountServiceImpl"/>
+</beans>
