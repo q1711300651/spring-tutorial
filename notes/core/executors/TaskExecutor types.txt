@@ -1,0 +1,17 @@
+SimpleAsyncTaskExecutor
+    Реализация TaskExecutor, не поддерживает пул потоков. Создаеться новый поток
+
+SyncTaskExecutor
+    Эта реализация не поддерживает, выполенеие асинхронных запросов. Все запросы будут выполненны в поредке очереди в
+    одном потоке. Такая реализация используеться когда множестов потоков не нужно, к примеру в тестах
+
+ConcurrentTaskExecutor
+    Реализация являеться адаптером для java.util.concurrent.Executor обьекта
+
+SimpleThreadPoolTaskExecutor
+    Эта реализация, являеться подклассом Quartz’s SimpleThreadPool.
+
+ThreadPoolTaskExecutor
+    Часто использываемая реализация, ялваеться оболочкой к  java.util.concurrent.ThreadPoolExecutor
+
+WorkManagerTaskExecutor

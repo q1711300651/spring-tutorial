@@ -1,0 +1,50 @@
+Quartz использует Trigger, Job и JobDetail для реализации периодов выполнения для всевозможных задач.
+
+    <bean name="exampleJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+        <property name="jobClass" value="example.ExampleJob"/>
+        <property name="jobDataAsMap">
+            <map>
+                <entry key="timeout" value="5"/>
+            </map>
+        </property>
+    </bean>
+
+Вызов методов, в определенном периоде
+
+    <bean id="jobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="exampleBusinessObject"/>
+        <property name="targetMethod" value="doIt"/>
+    </bean>
+
+По умолчанию Quartz Jobs не хранят состояния, что не позволяет выполнять методы, в определенном порядке.
+используя флаг concurrent, можно синхронизировать работы нескольких Jobs
+
+<bean id="jobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetObject" ref="exampleBusinessObject"/>
+    <property name="targetMethod" value="doIt"/>
+    <property name="concurrent" value="false"/>
+</bean>
+
+
+SchedulerFactoryBean - используеться для регистрации тригеров в системе
+
+    <bean id="simpleTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+        <property name="jobDetail" ref="jobDetail"/>
+        <property name="startDelay" value="10000"/>
+        <property name="repeatInterval" value="50000"/>
+    </bean>
+
+    <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="exampleJob"/>
+        <property name="cronExpression" value="0 0 6 * * ?"/>
+    </bean>
+
+    <!-- Сама регистрация выполняеться в SchedulerFactoryBean -->
+    <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="cronTrigger"/>
+                <ref bean="simpleTrigger"/>
+            </list>
+        </property>
+    </bean>

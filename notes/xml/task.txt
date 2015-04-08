@@ -1,0 +1,44 @@
+Конфигурация выполнения паралельных либо отложенных задач
+
+<task:annotation-driven/>
+    executor : ссылка на TaskExecutor
+    scheduler : ссылка TaskScheduler
+
+    Деректива, указыват на выполенение матодов, с аннотациями @Async и @Scheduled
+
+
+<task:executor id="myExecutor" pool-size="5"/>
+
+    pool-size : кол. потоков в пуле ( приме. 5-25 или 5 )
+    queue-capacity : Количесво возможных задач в для пула.
+                    Если текуще кол. задач привышает кол. потоков, то тогда такие задачи помещаються в очередь
+                    Если колю задач привашает размер очереди, то тогда создаеться новый поток
+                    Если кол. потока привышает макс. размер потоков, то тогда испольнитель откажеться от задачи
+                    ( будет вызвано исключение TaskRejectedException )
+                    По умолчанию очередь без ограничений
+
+    rejection-policy: натсройка поведение исполнителя, в случае переполенения задачами
+                      По умолчанию будет вызвано исключение TaskRejectedException
+                      DiscardPolicy - просто игнорировать задачу
+                      CALLER_RUNS - если стек переполен, то заставит вызвающий поток выполнить задачу
+    keep-alive : Количество секунд простоя перед уничтожением для потоков, что болше чем основное количество
+
+    Реистрация в системе испольнителя ассинхронных задач
+
+    Создаст ThreadPoolTaskExecutor
+
+
+<task:scheduler id="myScheduler" pool-size="10"/>
+
+    Регистрация в системе испольнителая отложенных и временных задач.
+    Создаст ThreadPoolTaskScheduler с количеством потоков в пуле по пораметру
+
+
+<task:scheduled-tasks />
+    Настройка в контексте выполнения методов, в определенном периоде
+
+    <task:scheduled-tasks scheduler="myScheduler">
+        <task:scheduled ref="beanA" method="methodA" fixed-delay="5000" initial-delay="1000"/>
+        <task:scheduled ref="beanB" method="methodB" fixed-rate="5000"/>
+        <task:scheduled ref="beanC" method="methodC" cron="*/5 * * * * MON-FRI"/>
+    </task:scheduled-tasks>
