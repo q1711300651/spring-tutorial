@@ -1,0 +1,59 @@
+
+<cache:annotation-driven />
+
+    Подключает кеш к системе, все методы, с соотвествующими аннотациями, будут кешироваться.
+
+    Параметры:
+        cache-manager  -> ( по умолчанию cacheManager ) Выполняеться поиск по бину с id "cacheManager", либо указать вручную
+        cache-resolver -> ( по умолчанию SimpleCacheResolver )   Стандратный контекст
+        key-generator -> ( по умолчанию SimpleKeyGenerator ) Имя произвольного генератора ключа
+        error-handler -> ( по умолчанию SimpleCacheErrorHandler ) настройка обработчика ошибок кеша
+        mode -> ( по умолчанию proxy ) proxy - обычный Spring AOP, aspectj - использует AspectJ weaver
+        proxy-target-class -> ( по умолчанию false ) Если true, то исопльзуеться прокси на основе классов, если false
+                              то используеться стандартое JDK интерфейсное проксирование
+        order -> ( по умолчанию  Ordered.LOWEST ) Выполнение проксиирование в порядке остальных проксирующих методов
+
+
+<cache:advice />
+
+    Выполняет групирование комманд кеша с методами класса
+
+    Параметры:
+        id - идентификатор совета
+        cache-manager - ссылка на менеджер кеша
+
+
+<cache:caching />
+
+    Используеться внутри <cache:advice />. Связывает метод с командой кеша
+
+    Параметры:
+        cache - имя хранилища кеша
+
+<cache:cacheable />
+
+    Используеться внутри <cache:caching />. Связывает команду поместить в/взят из кеш с методом
+
+    Параметры:
+        method - имя метода
+        key - ключ
+        condition - указать улсловие кеширование результатов
+        unless - используеться вместе с condition, для отмены условия
+
+<cache:cache-evict />
+
+    Используеться внутри <cache:caching />. Связывает команду удалить из кеша с методом
+
+    Параметры:
+        all-entries - [true|false] - указывает очищать всесь кеш или по ключу
+        before-invocation - [true|false] указывает режим вызова перед, в случае true, и после в случае false
+
+
+<aop:config/>
+    В данном случае связывает совет с конктретными реализациями
+
+    Пример:
+
+     <aop:config>
+         <aop:advisor advice-ref="cacheAdvice" pointcut="execution(* x.y.BookService.*(..))"/>
+     </aop:config>

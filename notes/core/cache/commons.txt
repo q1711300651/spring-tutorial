@@ -1,7 +1,77 @@
 Общая информация
 
-Кеш работает только для методов которые гарантированно возвращают один и
-тот же результат на один и тот же запрос ( аргумнты )
+Кеш работает только для методов которые гарантированно возвращают один и тот же результат на один и тот же
+запрос ( аргумнты )
+
+
+Настройка кеша
+
+    Пример простой настройки кеша, используя страндартный JDK механизм "ConcurrentHashMap":
+
+        <bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">
+            <property name="caches">
+                <set>
+                    <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="default"/>
+                    <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="books"/>
+                </set>
+            </property>
+        </bean>
+
+     Подобный кеш, достаточно быст, и расширяем, но не поддерживает никаких спопобов конфигурации.
+
+     EhCache:
+
+        EhCache - библеотека предостовляющая кеш, с больщой возможностью конфигурации, и исопльзование кластерном
+        окружении:
+
+        <bean id="cacheManager"
+              class="org.springframework.cache.ehcache.EhCacheCacheManager" p:cache-manager-ref="ehcache"/>
+
+        <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
+        p:config-location="ehcache.xml"/>
+
+        Конфигурация кеша описуеться в файле ehcache.xml
+
+
+    Guava Cache:
+
+        Достатоно простой способ реализации кеша, с небольшим количестом конфигурации и быстротой работы:
+
+            <bean id="cacheManager" class="org.springframework.cache.guava.GuavaCacheManager">
+                <property name="caches">
+                    <set>
+                        <value>default</value>
+                        <value>books</value>
+                    </set>
+                </property>
+            </bean>
+
+    GemFire-based Cache:
+        GemFire - это ориентированное на память/дисковое пространство раширяемое, гибкое решение. Которое способно даже
+        заменить базу данных, и предостовляюе большой выбор в конфигурации.
+
+
+Раширение Аннотаций
+
+Аннотации можно расширить исопльзуя наследлвание аннотации, в случае часто используемой комбинации прараметров:
+
+    Создание отдельной аннотации:
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.METHOD})
+    @Cacheable(value="books", key="#isbn")
+    public @interface SlowService {
+    }
+
+    и в классе:
+
+    @SlowService
+    public Book findBook(ISBN isbn, boolean checkWarehouse, boolean includeUsed)
+
+Подобная аннотация будет работать и контейнер Spring будет определять её как часть собственных аннотаций
+
+
+
 
 
 Генерация ключа
