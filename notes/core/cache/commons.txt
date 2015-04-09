@@ -1,0 +1,50 @@
+Общая информация
+
+Кеш работает только для методов которые гарантированно возвращают один и
+тот же результат на один и тот же запрос ( аргумнты )
+
+
+Генерация ключа
+
+    По скольку кеш это простое "ключ-значение" хранилище. То нужен удобный способ получить ключ с вызова метода.
+    По умолчанию испольщуеться простой генератор ключа работающий по такому алгоритму:
+        1.Если нету параметров в методе, возвращаеться SimpleKey.EMPTY.
+        2.Если один параметр, возвращаеться обьект
+        3.Если болльше чем один, возвращаеться SimpleKey, который содержит все параметры
+
+    Такой способ хорошо работает, в случае если параметры примитивы или обьекты реализующие
+    hashCode() и equals() методы.
+
+
+    Собственный генератор ключа
+
+    Пример реализации для метода:
+
+        @Cacheable("books")
+        public Book findBook(ISBN isbn, boolean checkWarehouse, boolean includeUsed)
+
+        В данном случае, два параметре, не влияют на кеш. В подобных случаях используеться
+        парметр key, где с помощью SpEL указываеться алгоритм формирования ключа:
+
+        @Cacheable(value="books", key="#isbn")
+        public Book findBook(ISBN isbn, boolean checkWarehouse, boolean includeUsed)
+
+        или
+
+        @Cacheable(value="books", key="#isbn.rawNumber")
+        public Book findBook(ISBN isbn, boolean checkWarehouse, boolean includeUsed)
+
+        или
+
+        @Cacheable(value="books", keyGenerator="T(someType).hash(#isbn)")
+        public Book findBook(ISBN isbn, boolean checkWarehouse, boolean includeUsed)
+
+
+    Если алгоритм формирование ключа, более спецефичный, то можно указать и реализовать собственных гениратор
+
+        @Cacheable(value="books", keyGenerator="myKeyGenerator")
+        public Book findBook(ISBN isbn, boolean checkWarehouse, boolean includeUsed)
+
+
+        Параметры keyGenerator и key взаимоисключаемые, использование обоих вызовит исключение
+
