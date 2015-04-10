@@ -1,0 +1,100 @@
+
+Спринг позволяет расширять настройки контекста с помошью собственных xsd схем
+
+Пример, создание схемы для конфигурации SimpleDateFormat обьектов, на прямую в контексте
+
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+        xmlns="http://www.mycompany.com/schema/myns"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:beans="http://www.springframework.org/schema/beans"
+        targetNamespace="http://www.mycompany.com/schema/myns"
+        elementFormDefault="qualified"
+        attributeFormDefault="unqualified">
+
+
+    <xsd:import namespace="http://www.springframework.org/schema/beans"/>
+
+
+    <xsd:element name="dateformat">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="beans:identifiedType">
+                    <xsd:attribute name="lenient" type="xsd:boolean"/>
+                    <xsd:attribute name="pattern" type="xsd:string" use="required"/>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>
+
+
+Реализация NamespaceHandler, который будет читать элементы, в указанной области видимости.
+
+Достаточно простой в реализации:
+
+    init() - запускаеться контейнером спринга перед использованием обработчика
+
+    BeanDefinition parse(Element, ParserContext) - Вызываеться для высокоуровневого компонента, этот метод, может
+    регестрировать или возвращать описание бина.
+
+    BeanDefinitionHolder  decorate(Node,  BeanDefinitionHolder,  ParserContext) - вызываеться, когда Spring
+    обработчик получает аттрибут или вложенный элемент из другой области видимости
+
+
+
+Пример:
+
+    public class MyNamespaceHandler extends NamespaceHandlerSupport {
+        public void init() {
+            registerBeanDefinitionParser("dateformat", new SimpleDateFormatBeanDefinitionParser());
+        }
+    }
+
+    NamespaceHandlerSupport - повзволяет просто регастрировать парсер, которому потом делегируют обработку тега.
+    Это значить что каждый парсер, будет работать только с одинм элементом
+
+
+
+    BeanDefinitionParser
+
+    AbstractSingleBeanDefinitionParser - используеться как шаблон для обрабтки простых еденичных тегов
+
+    Пример:
+
+    public class SimpleDateFormatBeanDefinitionParser extends AbstractSingleBeanDefinitionParser { ‚
+
+        protected Class getBeanClass(Element element) {
+            return SimpleDateFormat.class;
+        }
+
+
+        protected void doParse(Element element, BeanDefinitionBuilder bean) {
+
+            //  Паттерн всегда будет присутсвовать, так как в схмеме, он обьявлен как требуемый
+            String pattern = element.getAttribute("pattern");
+            bean.addConstructorArg(pattern);
+
+            // lenient - опциональный аттрибут
+            String lenient = element.getAttribute("lenient");
+            if (StringUtils.hasText(lenient)) {
+                bean.addPropertyValue("lenient", Boolean.valueOf(lenient));
+            }
+        }
+    }
+
+
+Регестрация
+
+    META-INF/spring.handlers
+
+    Файл содержит свзяь между областью видимости и её обработчиком
+
+    http\://www.mycompany.com/schema/myns=org.springframework.samples.xml.MyNamespaceHandler
+
+
+    META-INF/spring.schemas
+
+    Файл содержит связь области видимости с конкретным описание области видимости
+
+    http\://www.mycompany.com/schema/myns/myns.xsd=org/springframework/samples/xml/myns.xsd

@@ -1,0 +1,77 @@
+the jee schema
+
+    xmlns:jee="http://www.springframework.org/schema/jee"
+
+    http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+
+    теги для доступа к среде JAVA EE
+
+
+<jee:jndi-lookup/>
+
+    Выполнить поиск из JNDI контекста
+
+    До:
+
+        <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+            <property name="jndiName" value="jdbc/MyDataSource"/>
+        </bean>
+
+    После:
+
+        <jee:jndi-lookup id="dataSource" jndi-name="jdbc/MyDataSource"/>
+
+
+    С настройками среды:
+
+        <jee:jndi-lookup id="simple" jndi-name="jdbc/MyDataSource">
+            <jee:environment>
+                foo=bar
+                ping=pong
+            </jee:environment>
+        </jee:jndi-lookup>
+
+
+<jee:local-slsb/>
+
+    Доступ к EJB Stateless SessionBean
+
+    Без:
+
+        <bean id="simple"
+                class="org.springframework.ejb.access.LocalStatelessSessionProxyFactoryBean">
+            <property name="jndiName" value="ejb/RentalServiceBean"/>
+            <property name="businessInterface" value="com.foo.service.RentalService"/>
+        </bean>
+
+    С :
+        <jee:local-slsb id="simpleSlsb" jndi-name="ejb/RentalServiceBean"
+                business-interface="com.foo.service.RentalService"/>
+
+<jee:remote-slsb/>
+
+    Доступ к удаленному EJB Stateless SessionBean
+
+    Без:
+
+        <bean id="complexRemoteEjb"
+                class="org.springframework.ejb.access.SimpleRemoteStatelessSessionProxyFactoryBean">
+            <property name="jndiName" value="ejb/MyRemoteBean"/>
+            <property name="businessInterface" value="com.foo.service.RentalService"/>
+            <property name="cacheHome" value="true"/>
+            <property name="lookupHomeOnStartup" value="true"/>
+            <property name="resourceRef" value="true"/>
+            <property name="homeInterface" value="com.foo.service.RentalService"/>
+            <property name="refreshHomeOnConnectFailure" value="true"/>
+        </bean>
+
+    С:
+
+        <jee:remote-slsb id="complexRemoteEjb"
+                jndi-name="ejb/MyRemoteBean"
+                business-interface="com.foo.service.RentalService"
+                cache-home="true"
+                lookup-home-on-startup="true"
+                resource-ref="true"
+                home-interface="com.foo.service.RentalService"
+                refresh-home-on-connect-failure="true">
