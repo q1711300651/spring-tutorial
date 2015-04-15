@@ -1,0 +1,23 @@
+
+
+subflow-state
+    Веб потоки могут вызывать други потоки вкачестве встроенных. Данный елемент вызывает поток
+
+    Атрибуты:
+    id - идентификатор потока
+    subflow - указатель на контекст внутренего потока
+
+    Внутринее елементы:
+    input - елемент указывает входящие переменые для внутреннего потока
+            Пример:
+                   <subflow-state id="addGuest" subflow="createGuest">
+                        <input name="booking" />
+                        <transition to="reviewBooking" />
+                    </subflow-state>
+
+    evaluate - вызывает выполянет указанную обработку со значение что вернул внутренний поток
+               Пример:
+                        <transition on="guestCreated" to="reviewBooking">
+                            <evaluate expression="booking.guests.add(currentEvent.attributes.guest)" />
+                        </transition>
+               Где, guest - значение что вернулось со guestCreated

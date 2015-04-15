@@ -1,0 +1,275 @@
+Spring Web Flow
+    разработан, что бы инкапсулиорать часто используемые последовательности шагов, которые можно выполнять в разных
+    контекстах. В поток входят "состояния".
+    Состояние потока - это определенный шаг, которые что отображаеться для пользователя и реагирует на события.
+
+
+Инициализация:
+
+    flow
+        Каждый веб-поток начинаеться из подобного елемента
+
+        Пример:
+
+            <flow xmlns="http://www.springframework.org/schema/webflow"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://www.springframework.org/schema/webflow
+                                      http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+
+                  ...Описание потока...
+
+            </flow>
+
+Контракт:
+
+    Контракт потока опредлеляет параметры, которые поток должен получать либо вернуть
+
+    input
+        Используеться для определение входящих атриботов
+
+        Атрибуты:
+            name - имя входящего атрибута
+            type - тип атрибута ( если не определен то и не будет преобразование типа )
+            value - указывать куда разместить полученный атрибут ( в какую область видимости )
+            required - указать что атрибут обязателен
+
+        Пример:
+
+            <input name="hotelId" type="long" value="flowScope.hotelId" required="true" />
+
+    output
+        Используеться для определение атрибутов на выходе из потока. Обьявляеться в блоке end-state
+
+        Атрибуты:
+            value - используеться для загрузки атрирбута
+                    <output name="confirmationNumber" value="booking.confirmationNumber" />
+
+        Пример:
+            <end-state id="bookingConfirmed">
+                  <output name="bookingId" value="booking.id"/>
+            </end-state>
+
+
+Типы Состояния:
+
+    view-state
+       Используеться для вывода отображение связанного с текущим состоянием для пользователя
+
+        Атрибуты:
+        id - идентификатор состояния ( по умолчанию связываеться id с ресурсом в текущем каталоге где и поток )
+        view - связывает состояние с ресурсом отображения
+               1.Относительно от файла потока :  view="bookingDetails.xhtml"
+               2.Асболюьный путь :  view="/WEB-INF/hotels/booking/bookingDetails.xhtml"
+               3.Логический путь ( вместе с Spring MVC ) :  view="bookingDetails"
+
+        model - Связывает модель с отображением
+                1. Простая связь : model="booking"
+                2. Ручная:
+                        Ручная настройка элементов связывания для представления,
+                        полезно когда нужно ограничить элементы которые
+                          <binder>
+                              <binding property="checkinDate" converter="shortDate" />
+                              <binding property="creditCard" required="true" />
+                              <binding property="creditCardName" />
+                              <binding property="creditCardExpiryMonth" required="true"/>
+                              <binding property="creditCardExpiryYear" required="true"/>
+                          </binder>
+
+                3. Подовление связывание модели для событий. К примеру не связывать модель с параметрами при отмене:
+
+                        <transition on="cancel" to="bookingCancelled" bind="false" />
+
+        Пример:
+
+    action-state
+        Используется, когда нужно вызвать действие, когда переход в другое состояние зависит от результата действий
+
+        Атрибуты:
+        id - идентификатор состояния
+
+        Пример:
+
+            <action-state id="moreAnswersNeeded">
+                <evaluate expression="interview.moreAnswersNeeded()" />
+                <transition on="yes" to="answerQuestions" />
+                <transition on="no" to="finish" />
+            </action-state>
+
+    decision-state
+        Используеться, как альтернатива для action-state, когда нужно просто определить переходы от решения пользователя
+
+        Атрибуты:
+        id - идентификатор состояния
+
+        Пример:
+
+            <decision-state id="moreAnswersNeeded">
+                <if test="interview.moreAnswersNeeded()" then="answerQuestions" else="finish" />
+            </decision-state>
+
+    end-state
+        Используеться, для указание выхода из потока. Когда поток завершаеться, выводиться указанный в этом состоянии
+        результат
+
+        Атрибуты:
+        id - идентификатор состояния
+
+        Пример:
+
+            <end-state id="bookingCancelled" />
+
+
+    transition
+        Используетья для обработки событий внутри состояния
+
+        Атрибуты:
+            on - идентификатор события ( указать событие что вызовет переход )
+            to - идентификатор состояния ( указать состояние куда выполнитья переход )
+
+        Елементы:
+            render  - елемент используеться для указания перерисовки только части страницы,
+                      атрибут должен указывать на id елемента который нужно перерисовать.
+                      либо несколько елементов, через запятую
+
+                        <transition on="next">
+                            <evaluate expression="searchCriteria.nextPage()" />
+                            <render fragments="searchResultsFragment" />
+                        </transition>
+        Пример:
+
+            <transition on="submit" to="bookingConfirmed">
+                <evaluate expression="bookingAction.makeBooking(booking, messageContext)" />
+            </transition>
+
+
+
+    global-transitions
+         Используються когда нужно предоставить одну обработку во всех отображениях
+
+         Атрибуты те же что и в transition
+
+         Пример:
+
+             <global-transitions>
+                 <transition on="login" to="login" />
+                 <transition on="logout" to="logout" />
+             </global-transitions>
+
+
+Действия
+
+    evaluate
+        Для выполнения каких либо действий в системе ( бизнес логика, логировае и т.п )
+
+    Атрибуты:
+        expression - блок где описываються выполняемые действия, с помощью Spring EL.
+                     Пример:
+                        expression="entityManager.persist(booking)"
+        result - укзать переменую куда веренеться результа операции
+
+        result-type - указать тип к которому нужно конвертировать результат операции
+
+
+    Для большентсве потоков, нужно выполнять не только логику переходов. Для подобных случаев есть несколько
+    точек активации:
+
+    on-start
+        При запуске потока
+
+    on-entry
+        Выполняеться всего раз при вхождении в состояния
+
+    on-exit
+        Выполняеться перед выходом из состояния
+
+    on-end
+        Выполняеться перед завершением потока
+
+    on-render
+        Выполняеться перед прорисовкой состояния
+
+    no-render
+        Указывает на выполнениея действий до рендеринга отображения
+
+         Пример:
+
+            <on-render>
+                <evaluate expression="bookingService.findHotels(searchCriteria)" result="viewScope.hotels"/>
+            </on-render>
+
+
+
+
+События
+
+    Поскольку переходы активируються (transition) по событию возвращаемое значение методов должно быть замапленно к
+    обьекту Event. Пример, как обычные значение мапяться к событию:
+
+            java.lang.String -> строковому значению
+            java.lang.Boolean -> yes ( true), no ( false)
+            java.lang.Enum -> имени Enum
+            любой другой тип -> success
+
+
+Области видимости
+
+    flowScope ( need to be Serializable )
+        Область видимости поток существует на протежение всего жизненого цикла потока. любой елемент помещенный в
+        подобную область должен быть сириализуем.
+
+    viewScope ( need to be Serializable )
+        Внутри view-state существует собственная область видимости. Она полезна когда нужно хранить обьекты для
+        множественных запросов в рамках одного view, Ajax к примеру
+
+    requestScope
+        Область видимости запроса, на отображение, создание, уничтожения
+
+    flashScope ( need to be Serializable )
+        Область видимости создаеться при инициализации потока, очищаеться при каждом рендеринге и уничтожаеться при
+        завершении потока
+
+
+
+
+Допольнительная информация
+
+
+    Пример реализации цепочка действий ( выполнение нескольких опреаций перед переходом в другое состояние )
+
+
+        <action-state id="doTwoThings">
+            <evaluate expression="service.thingOne()">
+                <attribute name="name" value="thingOne" />
+            </evaluate>
+            <evaluate expression="service.thingTwo()">
+                <attribute name="name" value="thingTwo" />
+            </evaluate>
+            <transition on="thingTwo.success" to="showResults" />
+        </action-state>
+
+    Потоковое дейстиве
+
+
+    Пример реализации отображение pdf документа, на выполения дейтсвия printBoardingPassAction
+
+        XML:
+
+            <view-state id="reviewItinerary">
+                <transition on="print">
+                    <evaluate expression="printBoardingPassAction" />
+                </transition>
+            </view-state>
+
+        Java:
+
+            public class PrintBoardingPassAction extends AbstractAction {
+
+                public Event doExecute(RequestContext context) {
+                    // получение потока PDF...
+                    // - Доступ к HttpServletResponse через
+                    context.getExternalContext().getNativeResponse();
+                    // - Сигнал о завершении операции:
+                    context.getExternalContext().recordResponseComplete();
+                    return success();
+                }
+            }
