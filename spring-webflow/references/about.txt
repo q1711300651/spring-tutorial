@@ -125,6 +125,9 @@ Spring Web Flow
         Атрибуты:
             on - идентификатор события ( указать событие что вызовет переход )
             to - идентификатор состояния ( указать состояние куда выполнитья переход )
+            history - указать алгоритм работы с функцией вернуться назад в браузере ( по-умолчанию разрешено )
+                      discard - запретить переход назад к этому представлению
+                      invalidate - запретить переход ко всем предыдущим представлениям
 
         Елементы:
             render  - елемент используеться для указания перерисовки только части страницы,
@@ -186,10 +189,10 @@ Spring Web Flow
         Выполняеться перед завершением потока
 
     on-render
-        Выполняеться перед прорисовкой состояния
+        Выполняеться перед прорисовкой предстовления
 
     no-render
-        Указывает на выполнениея действий до рендеринга отображения
+        Указывает на выполнениея действий до рендеринга представления
 
          Пример:
 
@@ -227,7 +230,48 @@ Spring Web Flow
     flashScope ( need to be Serializable )
         Область видимости создаеться при инициализации потока, очищаеться при каждом рендеринге и уничтожаеться при
         завершении потока
+    conversationScope ( need to be Serializable )
+        Область видимости для родительского потока, подобна flowScope, но распостраняеться и на дочерние потоки
 
+    Если конкртеная область видимости не указана область видимости при обращении к обьекту.
+    То поиск переменной будет проведен в request ->  flash -> view -> flow -> conversationScope.
+    Если переменная не будет найдена, то инициализируеться исключение EvaluationException
+
+
+Переменные среды
+
+    requestParameters - доступ к параметрам запроса
+        Пример:
+            <set name="requestScope.hotelId" value="requestParameters.id" type="long" />
+
+    currentEvent - доступ к атрибутам текущего события
+        Пример:
+            <evaluate expression="booking.guests.add(currentEvent.attributes.guest)" />
+
+
+    currentUser - доступ к текущему пользователью ( авторизированном Principal )
+        Пример:
+            <evaluate expression="bookingValidator.validate(booking, messageContext)" />
+
+    messageContext - доступ к контектсу сообщений (успеха, ошибки и т.п )
+        Пример:
+             <set name="flashScope.successMessage" value="resourceBundle.successMessage" />
+
+    resourceBundle - доступ к локолизированным сообщениям
+        Пример:
+             <set name="flashScope.successMessage" value="resourceBundle.successMessage" />
+
+
+    flowRequestContext - доступ к RequestContext API, что предстовляет собой текущий запрос к потоку
+
+    flowExecutionContext - доступ к  FlowExecutionContext API, что предстовляет собой текущие состояние потока
+
+    flowExecutionUrl - урл на текущие состояине ( view-state ) потока
+
+    externalContext - доступ к клиентскому окружению ( атрибуты сессии и т.п ) ExternalContext API
+        Пример:
+            <evaluate expression="searchService.suggestHotels(externalContext.sessionMap.userProfile)"
+                      result="viewScope.hotels" />
 
 
 

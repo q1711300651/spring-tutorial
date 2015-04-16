@@ -1,8 +1,11 @@
 Настройка вадидации для JSR-303:
 
 <webflow:flow-registry flow-builder-services="flowBuilderServices" />
+
 <webflow:flow-builder-services id="flowBuilderServices" validator="validator" />
+
 <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
+
 
 
 Программная валиадация имеет два способа:
@@ -32,6 +35,7 @@
 
         @Component
         public class BookingValidator {
+
             public void validateEnterBookingDetails(Booking booking, ValidationContext context) {
                 MessageContext messages = context.getMessageContext();
 
@@ -44,6 +48,14 @@
 
         Если назвать метод в класс как validate, то данный метод будет применяться во всех действий связанных с
         моделью
+
+        @Component
+        public class BookingValidator {
+            public void validate(Booking booking, ValidationContext context) {
+                //...
+            }
+        }
+
 
 
 Подовление валидации

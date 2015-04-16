@@ -1,0 +1,38 @@
+
+MessageContext API используеться для вывода сообщений в процесе работы потока. Существует поддержка как для
+простых сообщений так и для локализированных.
+
+Типы сообщений:
+    1. info
+    1. warning
+    1. error
+
+MessageBuilder
+    Пример отправки сообщений с помощью MessageBuilder:
+
+    MessageContext context = ...
+    MessageBuilder builder = new MessageBuilder();
+
+    // error
+    context.addMessage(builder.error().source("checkinDate").defaultText("Дата должна быть больще текущей").build());
+
+    // warning
+    context.addMessage(builder.warn().source("smoking")defaultText("Курение плохо влияет на ваше здоровье").build());
+
+    // info
+    context.addMessage(builder.info().defaultText("Ваш заказ принят.").build());
+
+
+    Интернационализация
+
+    Для реализации поддержки локализированных сообщений в веб потоке, нужно просто добавить файл "messages.properties"
+    в директорию описание потока, для каждой локали
+
+    // error
+    context.addMessage(builder.error().source("checkinDate").code("checkinDate.notFuture").build());
+
+    // warning
+    context.addMessage(builder.warn().source("smoking").code("notHealthy").resolvableArg("smoking").build());
+
+    // info
+    context.addMessage(builder.info().code("reservationConfirmation").build());

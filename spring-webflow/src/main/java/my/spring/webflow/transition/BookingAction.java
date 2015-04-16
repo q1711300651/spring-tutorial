@@ -4,6 +4,9 @@ import my.spring.webflow.model.Booking;
 import my.spring.webflow.service.BookingService;
 import org.springframework.binding.message.MessageBuilder;
 import org.springframework.binding.message.MessageContext;
+import org.springframework.webflow.action.MultiAction;
+import org.springframework.webflow.execution.Event;
+import org.springframework.webflow.execution.RequestContext;
 
 import javax.inject.Inject;
 
@@ -24,7 +27,7 @@ public class BookingAction {
     @Inject
     private BookingService bookingService;
 
-    private static class RoomNotAvailableException extends RuntimeException {}
+
 
     public boolean makeBooking(Booking booking, MessageContext context) {
         try {
@@ -37,3 +40,27 @@ public class BookingAction {
         }
     }
 }
+
+/**
+ * Или
+ * испольуя расширение классов MultiAction (для нескольких комманд ) или для одной комманды implements Action
+ */
+class BookingAction2 extends MultiAction {
+
+    @Inject
+    private BookingService bookingService;
+
+    public Event makeBooking(RequestContext context) {
+        try {
+            Booking booking = (Booking) context.getFlowScope().get("booking");
+            bookingService.make(booking);
+            return success();
+        } catch (RoomNotAvailableException e) {
+            context.getMessageContext().addMessage(new MessageBuilder().error()
+                    .defaultText("No room is available at this hotel").build());
+            return error();
+        }
+    }
+}
+
+class RoomNotAvailableException extends RuntimeException {}

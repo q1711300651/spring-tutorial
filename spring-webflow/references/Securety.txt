@@ -35,6 +35,7 @@ SecurityFlowExecutionListener
 Конфигурация
 
     app-context.security.xml
+
     <security:http auto-config="true">
         <security:form-login login-page="/spring/login"
                   login-processing-url="/spring/loginProcess"
