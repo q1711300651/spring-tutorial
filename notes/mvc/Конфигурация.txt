@@ -26,7 +26,7 @@ mvc:annotation-driven
 
 Включает поддржку
     1. Используеться Spring 3 конвертация типов вместо JavaBeans
-    2. Формотирования чисео для полей используя  @NumberFormat  annotation.
+    2. Формотирования чисел для полей используя  @NumberFormat  annotation.
     3. Форматирования следующих типов Date, Calendar, Long, и Joda Time используя @DateTimeFormat annotation.
     4. Валидация в  @Controller используя @Valid, если  есть JSR-303 поставщик.
     5. HttpMessageConverter  для @RequestBody методав и @ResponseBody метоло.
