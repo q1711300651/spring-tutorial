@@ -1,0 +1,22 @@
+Обработка событий из HTML
+
+Пример ниже показывает две кнопки, на одной форме, которые создают события "proceed" и "cancel":
+
+    <input type="submit" name="_eventId_proceed" value="Proceed" />
+    <input type="submit" name="_eventId_cancel" value="Cancel" />
+
+Если нажата кнопа Proceed, WebFlow ищет в запросе параметр _eventId_ и относиться как идентификатор события.
+Нужно придериживаться подобного стиля, когда есть несколько событий которые могу быть созданны одной формой
+
+
+Использование скрытых параметров для HTML формы:
+
+    <input type="submit" value="Proceed" />
+    <input type="hidden" name="_eventId" value="proceed" />
+
+Подобный стиль возможен только если форма создает всего одно событие
+
+
+Использование ссылка для вызова события
+
+<a href="${flowExecutionUrl}&_eventId=cancel">Cancel</a>

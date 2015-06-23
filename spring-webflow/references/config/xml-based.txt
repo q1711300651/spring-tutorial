@@ -1,0 +1,101 @@
+XML пространстов имен:
+
+    <beans xmlns="http://www.springframework.org/schema/beans"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:webflow="http://www.springframework.org/schema/webflow-config"
+           xsi:schemaLocation="http://www.springframework.org/schema/beans
+                               http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                               http://www.springframework.org/schema/webflow-config
+                               http://www.springframework.org/schema/webflow-config/spring-webflowconfig-2.4.xsd">
+            <!-- Тут настройка потока -->
+    </beans>
+
+
+<webflow:flow-registry/>
+
+Регистрация потоков
+    Выполняеться через элемент flow-registry, в котором прописываеться
+
+    <webflow:flow-registry id="flowRegistry">
+        <webflow:flow-location path="/WEB-INF/flows/booking/booking.xml" />
+    </webflow:flow-registry>
+
+
+    Атрибуты:
+      id - идентификатор регистра
+      base-path - начальный путь для всех зарегестрированных потоков может быть как и ресурсным "/WEB-INF",
+                  так и класспасе "classpath:org/springframework/webflow/samples"
+      parent - связывает два потока в одну иерарихию. Если дочерний регистр запускаетья и не может найти в у себя
+      зарегестрированный поток, то он делегирует родителю
+
+
+    <webflow:flow-location/>
+        Описание размещение потока
+
+        Аттрибуты:
+            path - путь к потоку
+            id - идентификатор потока ( так же урл по которому можно запустить поток )
+
+    <webflow:flow-location-pattern/>
+        Описание размещение потоков с помошью паттерна
+
+        Аттрибуты:
+            value - паттерн поиска потоков
+
+            <webflow:flow-location-pattern value="/WEB-INF/flows/**/*-flow.xml" />
+
+
+<webflow:flow-definition-attributes />
+    Регистрация доболнительных мета-аттрибутов для вызываемого потока
+
+            <webflow:flow-location path="/WEB-INF/flows/booking/booking.xml">
+                <webflow:flow-definition-attributes>
+                    <webflow:attribute name="caption" value="Books a hotel" />
+                  </webflow:flow-definition-attributes>
+            </webflow:flow-location>
+
+
+<webflow:flow-executor />
+
+Регистрация испольнителя потока
+
+    <webflow:flow-executor id="flowExecutor" />
+
+    Атрибуты:
+        id - идентификатор испольнителя
+
+
+
+<webflow:flow-execution-listeners />
+
+Регистрация слушателей
+    Пример:
+        <webflow:flow-execution-listeners>
+            <webflow:listener ref="securityListener"/>
+            <webflow:listener ref="persistenceListener"/>
+        </webflow:flow-execution-listeners>
+
+
+Указать слушателю прослушивать только определенные потоки:
+
+    <webflow:listener ref="securityListener" criteria="securedFlow1,securedFlow2"/>
+
+
+
+<webflow:flow-builder-services />
+
+Регистрация билдера для доп. конфигурации регистра потоков:
+
+    <webflow:flow-registry id="flowRegistry" flow-builder-services="flowBuilderServices">
+        <webflow:flow-location path="/WEB-INF/flows/booking/booking.xml" />
+    </webflow:flow-registry>
+
+
+    <webflow:flow-builder-services id="flowBuilderServices" />
+
+
+    Аттрибуты:
+
+        conversion-service - регистрация сервиса конвертирование обьектов
+        expression-parser - регистрация обработчика выражений
+        view-factory-creator - регистрация фабрики представления

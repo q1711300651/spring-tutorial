@@ -3,23 +3,6 @@ Spring Web Flow
     контекстах. В поток входят "состояния".
     Состояние потока - это определенный шаг, которые что отображаеться для пользователя и реагирует на события.
 
-
-Инициализация:
-
-    flow
-        Каждый веб-поток начинаеться из подобного елемента
-
-        Пример:
-
-            <flow xmlns="http://www.springframework.org/schema/webflow"
-                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                  xsi:schemaLocation="http://www.springframework.org/schema/webflow
-                                      http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
-
-                  ...Описание потока...
-
-            </flow>
-
 Контракт:
 
     Контракт потока опредлеляет параметры, которые поток должен получать либо вернуть

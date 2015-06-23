@@ -1,0 +1,98 @@
+Сигнатура JavaConfig класса:
+
+        @Configuration
+        public class WebFlowConfig extends AbstractFlowConfiguration {
+
+            // Тут Настройка потока
+        }
+
+Регистрация потока:
+
+    @Bean
+    public FlowDefinitionRegistry flowRegistry() {
+        return getFlowDefinitionRegistryBuilder()
+                .addFlowLocation("/WEB-INF/flows/booking/booking.xml", "bookHotel") // url, id
+                .build();
+    }
+
+    Регистрация паттерна для поиска потоков
+
+    return getFlowDefinitionRegistryBuilder()
+                .addFlowLocationPattern("/WEB-INF/flows/**/*-flow.xml")
+                .build();
+
+    Базовый путь
+    путь для всех зарегестрированных потоков может быть как и ресурсным "/WEB-INF", так и класспасе
+     "classpath:org/springframework/webflow/samples"
+
+        return getFlowDefinitionRegistryBuilder()
+            .setBasePath("/WEB-INF")
+            .addFlowLocationPattern("/hotels/booking/booking.xml")
+            .build();
+
+     Иерархия потоков
+
+     @Autowired
+     private SharedConfig sharedConfig;
+         @Bean
+         public FlowDefinitionRegistry flowRegistry() {
+             return getFlowDefinitionRegistryBuilder()
+                 .setParent(this.sharedConfig.sharedFlowRegistry()) // Регистрация родителя
+                 .addFlowLocation("/WEB-INF/flows/booking/booking.xml")
+                 .build();
+        }
+
+
+        ...
+
+        @Configuration
+        public class SharedConfig extends AbstractFlowConfiguration {
+
+            @Bean
+            public FlowDefinitionRegistry sharedFlowRegistry() {
+                return getFlowDefinitionRegistryBuilder()
+                .addFlowLocation("/WEB-INF/flows/shared.xml")
+                .build();
+            }
+        }
+
+Регистрация доп. мета аттрибутов:
+
+    Map<String, Object> attrs = ... ;
+    ...
+        return getFlowDefinitionRegistryBuilder()
+            .addFlowLocation("/WEB-INF/flows/booking/booking.xml", null, attrs)
+             .build();
+
+Регистрация испольнителя потока:
+
+    @Bean
+    public FlowExecutor flowExecutor() {
+        return getFlowExecutorBuilder(flowRegistry()).build();
+    }
+
+Регистрация слушателей:
+
+    @Bean
+    public FlowExecutor flowExecutor() {
+        return getFlowExecutorBuilder(flowRegistry())
+            .addFlowExecutionListener(securityListener(),"securedFlow1,securedFlow2") //критерий фильтрации
+            .addFlowExecutionListener(persistenceListener())
+            .build();
+    }
+
+
+Регистрация билдера для настройки конфигурации сервисов и настройки регистра потоков:
+
+
+    @Bean
+    public FlowDefinitionRegistry flowRegistry() {
+    return getFlowDefinitionRegistryBuilder(flowBuilderServices())
+        .addFlowLocation("/WEB-INF/flows/booking/booking.xml")
+        .build();
+    }
+
+    @Bean
+    public FlowBuilderServices flowBuilderServices() {
+        return getFlowBuilderServicesBuilder().build();
+    }

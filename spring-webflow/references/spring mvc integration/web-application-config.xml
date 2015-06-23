@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+    <!--
+           регистрация FlowHandlerAdapter для активации поддержки обработки потоков в Spring MVC
+    -->
+    <bean class="org.springframework.webflow.mvc.servlet.FlowHandlerAdapter">
+        <property name="flowExecutor" ref="flowExecutor" />
+        <property name="flowRegistry" ref="flowRegistry" />
+        <property name="order" value="0" />
+    </bean>
+
+    <!--
+        Следующий шаг это связать специфические ресурсы приложение с потоком. Для этого нужно обьявить:
+
+        Подобный обработчик позваляет связывать путь к ресурсам приложения с регистром потоков
+        Пример:
+            по пути "/hotels/booking"
+            будет запрос для потока с идентификатором "hotels/booking"
+
+    -->
+
+    <bean class="org.springframework.webflow.mvc.servlet.FlowHandlerMapping">
+        <property name="flowRegistry" ref="flowRegistry"/>
+        <property name="order" value="0"/>
+    </bean>
+</beans>

@@ -9,6 +9,9 @@
 Так же можно выполнить наследования на уровне состояния:
 
     <view-state id="child-state" parent="parent-flow#parent-view-state">
+    , где
+        parent-flow - идентификатор потока
+        parent-view-state - идентификатор состояния
 
 Состояния должны быть одного типа
 
