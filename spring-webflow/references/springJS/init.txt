@@ -1,0 +1,21 @@
+
+SpringJS предлагает гибкий способ для загрузки веб ресурсов таких как JavaScript,CSS из jar файл, так же как бы это было
+из корневогой директории. Для реализации подобного подхода необходимо определить сервлет в web.xml :
+
+    <!-- Serves static resource content from .jar files such as spring-js.jar -->
+    <servlet>
+        <servlet-name>Resource Servlet</servlet-name>
+        <servlet-class>org.springframework.js.resource.ResourceServlet</servlet-class>
+     </servlet>
+
+     <!-- Map all /resources requests to the Resource Servlet for handling -->
+    <servlet-mapping>
+        <servlet-name>Resource Servlet</servlet-name>
+        <url-pattern>/resources/*</url-pattern>
+    </servlet-mapping>
+
+после Spring 3.0, вместо обьявление сервлета, проще использовать
+<mvc:resources> елемент.
+    Пример:
+
+        <mvc:resources mapping="/resources/**" location="/, classpath:/META-INF/web-resources/"/>

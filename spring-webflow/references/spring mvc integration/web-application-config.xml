@@ -11,6 +11,12 @@
     <bean class="org.springframework.webflow.mvc.servlet.FlowHandlerAdapter">
         <property name="flowExecutor" ref="flowExecutor" />
         <property name="flowRegistry" ref="flowRegistry" />
+
+        <!--
+            Для активации возможности сохранять резултаты потока после редикрета можено поставить в true
+            нижеуказанный флаг.
+        -->
+        <property name="saveOutputToFlashScopeOnRedirect" value="true"/>
         <property name="order" value="0" />
     </bean>
 

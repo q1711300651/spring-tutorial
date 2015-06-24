@@ -1,0 +1,54 @@
+SpringJS Decorators - это пример реализации паттерна декоратор для существующий DOM елементов, расширяя их функционал
+
+Пример, реализации :
+<form:input id="searchString" path="searchString"/>
+<script type="text/javascript">
+    Spring.addDecoration(new Spring.ElementDecoration({
+    elementId: "searchString",
+    widgetType: "dijit.form.ValidationTextBox",
+    widgetAttrs: { promptMessage : "Search hotels by name, address, city, or zip." }}));
+</script>
+
+
+или
+Вызывает все валидации на форме
+
+<input type="submit" id="proceed" name="_eventId_proceed" value="Proceed" />
+<script type="text/javascript">
+    Spring.addDecoration(new Spring.ValidateAllDecoration({ elementId:'proceed', event:'onclick' }));
+</script>
+
+
+AjaxEventDecoration
+    Вызывает Ajax запрос
+
+<a id="prevLink" href="search?searchString=${criteria.searchString}&page=${criteria.page-1}">Previous</a>
+<script type="text/javascript">
+    Spring.addDecoration(new Spring.AjaxEventDecoration({
+        elementId: "prevLink",
+        event: "onclick",
+        params: { fragments: "body" }
+    }));
+</script>
+
+
+Так же возможно добовлять несколько декораторов на один елемент:
+
+<script type="text/javascript">
+    Spring.addDecoration(new Spring.ValidateAllDecoration({elementId:'proceed',
+                            event:'onclick'}));
+
+    Spring.addDecoration(new Spring.AjaxEventDecoration({elementId:'proceed',
+                            event:'onclick',formId:'booking', params:{fragments:'messages'}}));
+</script>
+
+
+Или привязывать декоратор к нескольким елементам
+
+dojo.query("#amenities input[type='checkbox']").forEach(function(element) {
+    Spring.addDecoration(new Spring.ElementDecoration({
+                            elementId: element.id,
+                            widgetType : "dijit.form.CheckBox",
+                            widgetAttrs : { checked : element.checked }
+                        }));
+});
