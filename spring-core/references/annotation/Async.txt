@@ -1,0 +1,41 @@
+@EnableAsync
+
+    добовляеться к конфигурационному классу, что позволяет запускать методы асинхронно, используя аннотацию  @Async
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+@Async
+    Используеться для того что бы вызов метода был асинхронным. Другими словами, упраление вернеться сразу к вызвающему
+    потоку после вызова метода:
+
+    Простой способ:
+        @Async
+        void doSomething() {
+            // this will be executed asynchronously
+        }
+
+
+    Либо использовать аргументы:
+
+        @Async
+        void doSomething(String s) {
+            // this will be executed asynchronously
+        }
+
+    Если метод, должен возвращать значение, то значение должно быть в Future:
+
+        @Async
+        Future<String> returnSomething(int i) {
+            // this will be executed asynchronously
+        }
+
+    По умолчанию, ассинхронные методы, выполняються TaskExecutor что указан в annotation-driven директиве, но можно указать
+    на прямую какой TaskExecutor, должен выполнить метод
+
+    @Async("otherExecutor")
+    void doSomething(String s) {
+        // this will be executed asynchronously by "otherExecutor"
+    }
+
+------------------------------------------------------------------------------------------------------------------------

@@ -60,11 +60,6 @@ WebApplicationContext DispatcherServlet, то аннотация просмот�
     @Transactional("account")
     public @interface AccountTx { }
 
-
-
-
-
-
 Настрокойки:
     transaction-manager (по умолочанию transactionManager) имя менеджера транзакции
     mode (умолч. proxy) тип перехвата транзакции Spring AOP/ AspectJ weaving

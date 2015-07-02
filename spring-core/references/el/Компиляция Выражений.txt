@@ -1,6 +1,6 @@
 Компиляция SpEL, повзоляет оптимизировать многоразовые выражения.
 По умолчанию вылюченно. Но существует два способа включить:
-    1. Ндобавить в конфиг парсера, перечисление org.springframework.expression.spel.SpelCompilerMode
+    1. Добавить в конфиг парсера, перечисление org.springframework.expression.spel.SpelCompilerMode
 
         SpelParserConfiguration config = new SpelParserConfiguration( SpelCompilerMode.IMMEDIATE, this.getClass().getClassLoader());
         SpelExpressionParser parser = new SpelExpressionParser(config);
@@ -8,7 +8,7 @@
 
         SpelCompilerMode:
             OFF - Комилятор выключен. Заданно по умолчанию
-            IMMEDIATE - Выражение компилируеться, как можно раньше. Тоесть комиляция выполняеться после первого вызова
+            IMMEDIATE - Выражение компилируеться, как можно раньше. То есть комиляция выполняеться после первого вызова
                         выражения, если скомпилированное выражение будет не удачным, то будет брошенно исключение
             MIXED - выражение переключаеться между компилировнным и интепретированным способом, после некоторых раз
                     выполнения, выражение компилируеться, и если скомпилированное выражение не удачно, выполняеться
