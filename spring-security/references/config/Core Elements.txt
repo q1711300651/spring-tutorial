@@ -1,0 +1,8 @@
+Ключевые елементы Spring Security
+
+1. Security Context Holder - предостовляет доступ к Security Context
+2. Security Context - Содерижит Authentication и запрос-ориентированную информацию безопасности.
+3. Authentication - предстовляет principal в Spring Security-specific manner.
+4. GrantedAuthority - отображает разарешения веб приложения для пользователя
+5. UserDetails - продостовляет необходимую информацию для формрования Authentication
+6. UserDetailsService - создает UserDetails из передаваемой строки

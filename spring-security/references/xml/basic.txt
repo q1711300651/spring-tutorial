@@ -14,13 +14,25 @@
         2.access - определяет требования доступа к указанному урлу (По умолчанию это просто разделенный
                    запятой список досутпных ролей)
         3.method - укзать спецефичный метод(PUT, POST, GET ect.) запроса что нужно перехватить
-
+        4.requires-channel [http|https|any] - если укзанно, к примеру только https, то когда пользователь попытаеться
+                                              обратиться к подобному ресурсу по http его автоматически перенапрявит к
+                                              https
     Если использовать паттерн "/**" то нужно учесть что страница авторизации ДОЛЖНА быть доступной для не
     зарегестрированного пользователя. т.е нужно указать дополнительное правило выше обычного:
 
         <intercept-url pattern="/login.jsp*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 
         IS_AUTHENTICATED_ANONYMOUSLY - для не зарегестрировнных пользователей
+
+------------------------------------------------------------------------------------------------------------------------
+
+<port-mappings />
+    Связывает не стандартные порты с каналом связи
+    Пример:
+        <port-mappings>
+            <port-mapping http="9080" https="9443"/>
+        </port-mappings>
+
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -81,3 +93,28 @@
 
     Параметры:
         data-source-ref - ссылка на DataSource
+
+------------------------------------------------------------------------------------------------------------------------
+
+<password-encoder />
+
+    Зарегестрировать обработчик шифрования.
+
+    Пример:
+
+            <beans:bean name="bcryptEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
+            <authentication-manager>
+                <authentication-provider>
+                    <!--
+                        Bcrypt  - это хороший выбор для множества случаев, только если существующая система уже
+                        использует собственный алгоритм
+                    -->
+                    <password-encoder ref="bcryptEncoder"/>
+                    <user-service>
+                        <user name="jimi" password="d7e6351eaa13189a5a3641bab846c8e8c69ba39f"
+                                authorities="ROLE_USER, ROLE_ADMIN" />
+                        <user name="bob" password="4e7421b1b8765d8f9406d87e7cc6aa784c4ab97f"
+                                authorities="ROLE_USER" />
+                    </user-service>
+                </authentication-provider>
+            </authentication-manager>
