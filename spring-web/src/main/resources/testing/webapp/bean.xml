@@ -4,17 +4,17 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
-    <bean id="userService" class="my.spring.testing.webapp.impl.UserServiceImpl"
+    <bean id="userService" class="my.spring.testing.impl.UserServiceImpl"
           c:loginAction-ref="loginAction"
           c:preferences-ref="userPref"/>
 
-    <bean id="loginAction" class="my.spring.testing.webapp.impl.LoginActionImpl" scope="request"
+    <bean id="loginAction" class="my.spring.testing.impl.LoginActionImpl" scope="request"
           c:user="#{request.getParameter('user')}"
           c:pswd="#{request.getParameter('pswd')}" >
         <aop:scoped-proxy/>
     </bean>
 
-    <bean id="userPref" class="my.spring.testing.webapp.UserPreferences" scope="session"
+    <bean id="userPref" class="my.spring.testing.UserPreferences" scope="session"
           c:theme="#{session.getAttribute('theme')}">
         <aop:scoped-proxy/>
     </bean>

@@ -1,4 +1,4 @@
-package my.spring.testing.webapp;
+package my.spring.testing;
 
 public interface UserService {
 

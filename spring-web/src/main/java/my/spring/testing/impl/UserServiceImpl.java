@@ -1,8 +1,8 @@
-package my.spring.testing.webapp.impl;
+package my.spring.testing.impl;
 
-import my.spring.testing.webapp.LoginAction;
-import my.spring.testing.webapp.UserPreferences;
-import my.spring.testing.webapp.UserService;
+import my.spring.testing.LoginAction;
+import my.spring.testing.UserPreferences;
+import my.spring.testing.UserService;
 
 public class UserServiceImpl implements UserService {
 

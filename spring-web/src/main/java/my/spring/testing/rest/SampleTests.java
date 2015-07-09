@@ -1,4 +1,4 @@
-package my.spring.testing.webapp.rest;
+package my.spring.testing.rest;
 
 import org.junit.Before;
 import org.junit.Test;

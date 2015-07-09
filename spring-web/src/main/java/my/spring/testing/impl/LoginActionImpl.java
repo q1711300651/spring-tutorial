@@ -1,6 +1,6 @@
-package my.spring.testing.webapp.impl;
+package my.spring.testing.impl;
 
-import my.spring.testing.webapp.LoginAction;
+import my.spring.testing.LoginAction;
 
 public class LoginActionImpl implements LoginAction {
 

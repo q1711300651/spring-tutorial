@@ -1,4 +1,4 @@
-package my.spring.testing.webapp;
+package my.spring.testing;
 ;
 import org.junit.Test;
 import org.junit.runner.RunWith;

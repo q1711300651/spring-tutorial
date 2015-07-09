@@ -1,4 +1,4 @@
-package my.spring.testing.webapp.mvc;
+package my.spring.testing.mvc;
 
 import org.junit.Before;
 import org.junit.Test;

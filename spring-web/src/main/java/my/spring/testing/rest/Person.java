@@ -1,4 +1,4 @@
-package my.spring.testing.webapp.rest;
+package my.spring.testing.rest;
 
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
