@@ -1,4 +1,3 @@
-
 mvc:annotation-driven
 
     Включает поиск по classpath классов, что имеют аннотацию MVC
