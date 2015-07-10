@@ -30,6 +30,10 @@
         <listener-class>org.springframework.web.util.WebAppRootListener</listener-class>
     </listener>
 
+    <!--
+        Фильтр используеться для делегирования обработки зарегестрированным в контексте фильтров.
+        На прямую не связан с Spring Security
+    -->
     <filter>
         <filter-name>springSecurityFilterChain</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
