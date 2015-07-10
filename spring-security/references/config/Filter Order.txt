@@ -1,0 +1,25 @@
+Порядок обьявление фильров очень важен.
+Фильтры должны следовать в таком порядке:
+
+ChannelProcessingFilter - потомучто возмодно понадобиться перенаправить на другой протокол
+
+SecurityContextPersistenceFilter - настройка и сохраниние SecurityContext
+
+ConcurrentSessionFilter - используеться в SecurityContextHolder и нужен для обновления SessionRegistry
+
+UsernamePasswordAuthenticationFilter
+CasAuthenticationFilter
+BasicAuthenticationFilter  etc - помещают Authentication в SecurityContextHolder
+
+SecurityContextHolderAwareRequestFilter
+
+JaasApiIntegrationFilter - для поддержки JaasAuthenticationToken
+
+RememberMeAuthenticationFilter - филтр генерит кукисы, для реализации Remember Me functionality
+
+AnonymousAuthenticationFilter - для поожекржи аннонимного пользователя
+
+ExceptionTranslationFilter - для трансляции Spring Security исключений в http ответы
+
+FilterSecurityInterceptor - для обработки url и возбужедния исключения если запрос отказан
+
