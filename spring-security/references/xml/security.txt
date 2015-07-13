@@ -23,3 +23,13 @@
             securityContextPersistenceFilterWithASCFalse
 
             Применяються для указание создовать или нет сессию
+
+<security:filter-security-metadata-source/>
+    Директива анологична к <http> елемнту
+    Перехватчики выполняються в порядке их
+
+    Параметры:
+
+        request-matcher = [ant|regexp|ciRegex] - используеться для указания обработчика совпадений для URL
+        lowercase-comparisons = [true|false] - если true преобразовует URL в нижний регистр перед сравнением
+        use-expressions [true|false] - включает поддержку выражений в аттрибутах access

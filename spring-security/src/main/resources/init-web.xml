@@ -24,4 +24,87 @@
                      </list>
               </constructor-arg>
        </bean>
+
+    <!--
+        Пример простой конфигукрации FilterSecurityInterceptor:
+    -->
+    <bean id="filterSecurityInterceptor" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+        <property name="authenticationManager" ref="authenticationManager"/>
+        <property name="accessDecisionManager" ref="accessDecisionManager"/>
+        <property name="securityMetadataSource">
+            <sec:filter-security-metadata-source request-matcher="regex">
+                <sec:intercept-url pattern="/secure/super/**" access="ROLE_WE_DONT_HAVE"/>
+                <sec:intercept-url pattern="/secure/**" access="ROLE_SUPERVISOR,ROLE_TELLER"/>
+            </sec:filter-security-metadata-source>
+        </property>
+    </bean>
+
+    <!--
+        Пример реализации ExceptionTranslationFilter
+        Данный фильтр не выполняет ни каких защитных действий, он только обрабатывает
+        исключение и транслирует их как результат в HTTP ответах
+
+        Так же ExceptionTranslationFilter отвечает за сохранение запроса и выполнения его после
+        успешной авторизации.
+
+        По умолчанию HttpSessionRequestCache используеться
+    -->
+    <bean id="exceptionTranslationFilter"
+          class="org.springframework.security.web.access.ExceptionTranslationFilter">
+        <constructor-arg name="authenticationEntryPoint" ref="authenticationEntryPoint" />
+        <property name="accessDeniedHandler" ref="accessDeniedHandler"/>
+    </bean>
+
+    <!--
+        AuthenticationEntryPoint
+
+        Реализация обработчика в случае если не зарегестрированны пользователь пытаеться обратиться к
+        защищенному рессурсу
+    -->
+    <bean id="authenticationEntryPoint"
+          class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+        <constructor-arg name="loginFormUrl" value="/login.jsp" />
+    </bean>
+
+    <!--
+    accessDeniedHandler
+
+    Реализация обработчика в случае если пользователь не имеет достаточных прав
+-->
+    <bean id="accessDeniedHandler"
+          class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
+        <property name="errorPage" value="/accessDenied.htm"/>
+    </bean>
+
+
+    <bean id="securityContextPersistenceFilter"
+          class="org.springframework.security.web.context.SecurityContextPersistenceFilter"/>
+
+
+    <!--
+    SecurityContextRepository
+    Ответсвенный за сохранение контекста безопасности
+
+    NullSecurityContextRepository - предотвращает сохранение контекста безопасности
+    -->
+    <bean id="securityContextPersistenceFilter"
+          class="org.springframework.security.web.context.SecurityContextPersistenceFilter">
+        <property name='securityContextRepository'>
+            <bean class='org.springframework.security.web.context.HttpSessionSecurityContextRepository'>
+                <property name='allowSessionCreation' value='false' />
+            </bean>
+        </property>
+    </bean>
+
+
+    <!--
+    UsernamePasswordAuthenticationFilter
+    Филтр автоматичеси создаеться при  <form-login>
+    -->
+    <bean id="formLoginFilter" class=
+            "org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
+        <property name="authenticationManager" ref="authenticationManager"/>
+    </bean>
+
+
 </beans>

@@ -1,0 +1,49 @@
+2.5
+
+HttpServletRequest.getRemoteUser()
+
+Вернет:
+
+    SecurityContextHolder.getContext().getAuthentication().getName()
+
+
+HttpServletRequest.getUserPrincipal()
+
+Вернет:
+
+    SecurityContextHolder.getContext().getAuthentication()
+
+
+HttpServletRequest.isUserInRole(String)
+
+Выполнит тоже что и
+
+    SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+    for each GrantedAuthority with inserted name
+
+Пример:
+
+    boolean isAdmin = httpServletRequest.isUserInRole("ADMIN");
+
+
+3+
+
+HttpServletRequest.authenticate(HttpServletRequest,HttpServletResponse)
+
+    Вызво метода, выполняеться для проверки являеться ли пользователь зарегестрирован
+
+
+HttpServletRequest.login(String,String)
+
+    Автроризирует пользователя
+
+
+HttpServletRequest.logout()
+
+
+
+AsyncContext.start(Runnable)
+
+
+
+
