@@ -1,0 +1,33 @@
+Digest Authentication - более усовершенственная версия Basic Authentication.
+Используеться "nonce" (отрезок времени), который генериттся по:
+
+    base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
+    expirationTime:   время когда "nonce" истечет в милисекундах
+    key:              приватный ключь для предотвращение модификации токена
+
+
+DigestAuthenticatonEntryPoint
+
+    Используете поля:
+        key - для генирации токена
+        nonceValiditySeconds - для форимирования времени жизни "nonce"
+
+
+Конфигурация
+
+    <bean id="digestFilter" class="org.springframework.security.web.authentication.www.DigestAuthenticationFilter">
+
+        <!-- DigestAuthenticationFilter должен иметь прямой доступ к текстовому значению пароля пользователя -->
+        <property name="userDetailsService" ref="jdbcDaoImpl"/>
+        <property name="authenticationEntryPoint" ref="digestEntryPoint"/>
+        <property name="userCache" ref="userCache"/>
+    </bean>
+
+    <bean id="digestEntryPoint" class="org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint">
+        <property name="realmName" value="Contacts Realm via Digest Authentication"/>
+        <property name="key" value="acegi"/>
+        <property name="nonceValiditySeconds" value="10"/>
+    </bean>
+
+
+

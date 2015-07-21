@@ -1,0 +1,20 @@
+Basic Authentication - достаточно популярное решение, из-за своей простоты
+                       ( использует Base64 шифрование для имени пользователя и пароля)
+
+
+Конфигурация:
+
+    <bean id="basicAuthenticationFilter" class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
+        <property name="authenticationManager" ref="authenticationManager"/>
+        <property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
+    </bean>
+
+    <bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
+        <property name="realmName" value="Name Of Your Realm"/>
+    </bean>
+
+
+Базовая кофигурация опрашивает каждый запрос. Если аутенитификация не успешна то сконфигурированная
+AuthenticationEntryPoint возобновит процесс аутенификационный процесс. Обычно используеться
+BasicAuthenticationEntryPoint которая отравляет 401 код в сучаи неуспешной аутентификацц
+
