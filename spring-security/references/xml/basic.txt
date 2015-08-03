@@ -158,9 +158,8 @@
              Указывает путь к классу слушателя
  
  
- ------------------------------------------------------------------------------------------------------------------------
- 
- <global-method-security/>
+------------------------------------------------------------------------------------------------------------------------
+<global-method-security/>
      Елемент позволяет включить защиту основаную на аннотациях
  
          Параметры:
@@ -179,5 +178,49 @@
              expression - прим. "execution(* com.mycompany.*Service.*(..))" - выражение для поиска нужных методов
              access - указание роли, которой доступен выбранный метод
  
- ------------------------------------------------------------------------------------------------------------------------
-    
+------------------------------------------------------------------------------------------------------------------------
+<remember-me/>
+
+    Параметры:
+        key [any value] - Включение простого механизма Remember Me
+                         (подробнее читай "references/Authentication/Remember Me.txt" )
+        data-source-ref [ref to data source object] - Включение продвинунутого механизма Remember Me
+                                                      (подробнее читай "references/Authentication/Remember Me.txt" )
+
+------------------------------------------------------------------------------------------------------------------------
+
+<csrf />
+
+    Cross Site Request Forgery
+    Елементу обрабатывает поведение системы с кросс-доменными запросами
+
+     Параметры:
+        disabled [true!|false] - активирует обработку для кросс-доменных запросах
+
+     Пример добавления токена:
+
+        <c:url var="logoutUrl" value="/logout"/>
+            <form action="${logoutUrl}" method="post">
+                <input type="submit" value="Log out" />
+                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+        </form>
+
+        Если используеться json, то вмерсто передачи как параметр, можно передать как http хедер:
+
+            <html>
+                <head>
+                    <meta name="_csrf" content="${_csrf.token}"/>
+                    <!-- default header name is X-CSRF-TOKEN -->
+                    <meta name="_csrf_header" content="${_csrf.headerName}"/>
+             ...
+
+        JQuery:
+            $(function () {
+                var token = $("meta[name='_csrf']").attr("content");
+                var header = $("meta[name='_csrf_header']").attr("content");
+
+                $(document).ajaxSend(function(e, xhr, options) {
+                    xhr.setRequestHeader(header, token);
+                });
+            });
+

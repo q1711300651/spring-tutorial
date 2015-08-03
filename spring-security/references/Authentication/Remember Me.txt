@@ -1,0 +1,74 @@
+Remember me - это реализация механизма, где браузер посредством кукисов, идентифицирует клиента через сессии.
+
+Требуеться реализация UserDetailsService
+Используеться в паре с UsernamePasswordAuthenticationFilter
+
+1. Простой способ, на основе хэшированных токенов
+
+    Шаблон результата токкена:
+
+        base64(username + ":" + expirationTime + ":" + md5Hex(username + ":" + expirationTime + ":" password + ":" + key))
+
+        ,где
+            username - идентификатор клиента
+            password - пароль
+            expirationTime - время жизни токкена
+            key - приватный ключ, для предотвращение модификации токкена
+
+    Для поключение используьестя тег в конфигурации Spring Security:
+
+        <http>
+            ...
+            <remember-me key="myAppKey"/>
+            ...
+        </http>
+
+
+2. Способ 2, предпологает сохранять токены в базе данных
+
+    Так как используеться база данных, то она должно содержать таблицу:  persistent_logins
+
+        create table persistent_logins (
+                series varchar(64) primary key,
+                username varchar(64) not null,
+                token varchar(64) not null,
+                last_used timestamp not null)
+
+
+Реалиазция собстенного сервиса:
+
+RememberMeServices - интерфейс
+
+
+
+Имплиминтация через регистрацию бинов:
+
+
+1. Способ
+
+    <bean id="rememberMeFilter" class= "org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter">
+        <property name="rememberMeServices" ref="rememberMeServices"/>
+        <property name="authenticationManager" ref="theAuthenticationManager" />
+    </bean>
+
+    <bean id="rememberMeServices" class= "org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
+        <property name="userDetailsService" ref="myUserDetailsService"/>
+        <property name="key" value="springRocks"/> <!-- Регистрация ключа -->
+    </bean>
+
+    <bean id="rememberMeAuthenticationProvider" class="org.springframework.security.authentication.RememberMeAuthenticationProvider">
+        <property name="key" value="springRocks"/> <!-- Регистрация ключа -->
+    </bean>
+
+Так же нужно добавить серсив к собственной реализации UsernamePasswordAuthenticationFilter
+
+
+
+2. Способ 2
+
+Реализация почти таже, за исключением TokenBasedRememberMeServices, где нужно добавить зависимость к имплементации
+сервиса для работы с бд. Существуют две реалиазции по умолчанию:
+
+    InMemoryTokenRepositoryImpl - для тестирования
+
+    JdbcTokenRepositoryImpl - осовноая реализация
