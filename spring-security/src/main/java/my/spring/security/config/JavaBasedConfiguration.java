@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 
 /**
  *  Пример конфигурации spring security через java класс
@@ -110,4 +112,34 @@ public class JavaBasedConfiguration extends WebSecurityConfigurerAdapter {
         // ...
     }
 
+    /**
+     * Настройка передачи хедеров
+     */
+    protected void configure_heeders( HttpSecurity http ) throws Exception {
+        http
+                .headers() // настройка хедеров
+                    .defaultsDisabled() // отключение хедеров по умолчанию
+                    .frameOptions() // настройка правил поведение с фреймам
+                        .sameOrigin() // SAMEORIGIN смотри xml описание или .deny()
+                    .contentTypeOptions() // Предовтращает "угадывание" загружаемых файлов для защиты от XSS
+                        .and()
+                .cacheControl() // отключить кеш для security запросов
+                    .and()
+                .httpStrictTransportSecurity() // Настройка HSTS смотри xml
+                    .includeSubDomains(true)
+                    .maxAgeInSeconds(31536000)
+                .and().addHeaderWriter(new StaticHeadersWriter("key", "value")) // добаляет соственный хедер
+                .disable(); // отключение хедеров
+    }
+
+    /**
+     * Настройка исключений для не кешированных ссылок в Spring Security
+     * Обычно используеться для подгрузки в кеш браузера ресурсных файлов, таких как JavaScript, CSS
+     */
+    protected void configure_heeders(ResourceHandlerRegistry registry) throws Exception {
+        registry
+                .addResourceHandler("/resources/**")
+                .addResourceLocations("/resources/")
+                .setCachePeriod(31556926);
+    }
 }
