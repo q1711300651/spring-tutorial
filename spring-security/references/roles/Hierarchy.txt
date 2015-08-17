@@ -1,0 +1,20 @@
+Spring Security предостовляет механизм наследования прав у роли, скажем нормальная ситуация если роль админа
+включала в себя права роли пользователя.
+
+Конфигурация:
+
+    <bean id="roleVoter" class="org.springframework.security.access.vote.RoleHierarchyVoter">
+        <constructor-arg ref="roleHierarchy" />
+    </bean>
+
+    <bean id="roleHierarchy" class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl">
+         <property name="hierarchy">
+              <value>
+               ROLE_ADMIN > ROLE_STAFF
+               ROLE_STAFF > ROLE_USER
+               ROLE_USER > ROLE_GUEST
+              </value>
+         </property>
+    </bean>
+
+ROLE_ADMIN - наследует все отсальные роли

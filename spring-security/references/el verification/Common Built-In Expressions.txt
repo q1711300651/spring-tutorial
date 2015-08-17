@@ -1,0 +1,33 @@
+hasRole([role]) - Возвращает true если текущий принцепал имеет указанную роль
+                  (по умочанию если указанная роль начинаеться без "ROLE_" приставка будет добавленна)
+
+hasAnyRole([role1,role2]) - Возвращает true если текущий принцепал имеет одну из указанных ролей
+
+hasAuthority([authority]) -  Возвращает true если текущий принцепал имеет указанную authority
+
+hasAnyAuthority([authority1,authority]) - тоже что и с hasAnyRole
+
+principal - прямой доступ к текущему принцепалу
+
+authentication - доступ к обьекту Authentication
+
+permitAll - всегда вернет true
+
+denyAll - всегда вернет false
+
+isAnonymous() - Возвращает true если текущий принцепал не авторизирован
+
+isRememberMe() - Возвращает true если текущий принцепал использует RememberMe механизм
+
+isAuthenticated()  - Возвращает true если текущий принцепал авторизирован
+
+isFullyAuthenticated() -  Возвращает true если текущий принцепал авторизирован и не использует RememberMe механизм
+
+hasPermission(Object target, Object permission) - Возвращает true если текущий принцепал имеет определенные
+                                                  право к target обьекту, пример: hasPermission(domainObject, 'read')
+
+hasPermission(Object targetId, String targetType, Object permission) - Возвращает true если текущий принцепал имеет
+                                                                        определенные право к target обьекту, пример:
+                                                                        hasPermission(1, 'com.example.domain.Message', 'read')
+
+

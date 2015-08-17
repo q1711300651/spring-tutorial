@@ -273,3 +273,32 @@
     enabled [true!|false]- включает/отключает поддержку аннонимного пользователя
     granted-authority - указать роли для анонимного пользователя (ROLE_ANONYMOUS по умолчанию)
     username - указать имя анонимного пользователя (anonymousUser по умолчанию)
+------------------------------------------------------------------------------------------------------------------------
+
+<method-security-metadata-source />
+
+    Настройка обарботки вызова методов на права пользователя. Что бы использовать AspectJ вместо стандартного
+    спринговского АОП, нужно указать на место
+    org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor класс:
+    org.springframework.security.access.intercept.aspectj.AspectJMethodSecurityInterceptor
+
+    <protect> - Правило обработки
+
+        Атрибуты:
+            method - аоп правило для выборки методов
+            access - перечень требуемых ролей
+
+    Пример:
+
+        <bean id="bankManagerSecurity" class="org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
+            <property name="authenticationManager" ref="authenticationManager"/>
+            <property name="accessDecisionManager" ref="accessDecisionManager"/>
+            <property name="afterInvocationManager" ref="afterInvocationManager"/>
+
+        <property name="securityMetadataSource">
+             <sec:method-security-metadata-source>
+                   <sec:protect method="com.mycompany.BankManager.delete*" access="ROLE_SUPERVISOR"/>
+                   <sec:protect method="com.mycompany.BankManager.getBalance" access="ROLE_TELLER,ROLE_SUPERVISOR"/>
+             </sec:method-security-metadata-source>
+        </property>
+        </bean>
