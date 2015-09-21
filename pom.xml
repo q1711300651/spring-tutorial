@@ -12,6 +12,7 @@
         <module>spring-webflow</module>
         <module>spring-integration</module>
         <module>spring-security</module>
+        <module>spring-batch</module>
     </modules>
     <packaging>pom</packaging>
     <name>SpringTutorial</name>
