@@ -1,0 +1,35 @@
+@AuthenticationPrincipal
+
+Spring Security предостовляет AuthenticationPrincipalArgumentResolver, который автоматически вовзвращает
+текущий принцепал.
+
+Пример:
+
+
+    Заменяет:
+
+        @RequestMapping("/messages/inbox")
+        public ModelAndView findMessagesForUser() {
+         Authentication authentication =
+           SecurityContextHolder.getContext().getAuthentication();
+         CustomUser custom = (CustomUser) authentication == null ? null : authentication.getPrincipal();
+         // .. find messags for this user and return them ...
+        }
+
+
+        @RequestMapping("/messages/inbox")
+        public ModelAndView findMessagesForUser(@AuthenticationPrincipal CustomUser customUser) {
+         // .. find messags for this user and return them ...
+        }
+
+Так же можно удаить зависимость от Spring Security, применив метаанотирование:
+
+
+    // Анотация CurrentUser будет использоваться так же как и AuthenticationPrincipal
+    @Target({ElementType.PARAMETER, ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @AuthenticationPrincipal
+    public @interface CurrentUser {}
+
+------------------------------------------------------------------------------------------------------------------------
