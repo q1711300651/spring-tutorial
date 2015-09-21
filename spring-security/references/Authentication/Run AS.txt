@@ -1,0 +1,103 @@
+Реализация механизма подменны авторизационного обьекта на запрос.
+Удобный способ, когда нужно выполнить несколько операций под другим пользователем, не меняя текущего авторизированного
+
+<!-- Для предотвращения создания RunAsUserToken не благонадежным кодом, используеться ключ,
+        который проверяеться потом провайдером  -->
+
+<bean id="runAsManager" class="org.springframework.security.access.intercept.RunAsManagerImpl">
+        <property name="key" value="my_run_as_password"/>
+</bean>
+
+<bean id="runAsAuthenticationProvider" class="org.springframework.security.access.intercept.RunAsImplAuthenticationProvider">
+    <property name="key" value="my_run_as_password"/>
+</bean>
+
+Активация провайдера:
+
+    <authentication-manager alias="authenticationManager">
+        <authentication-provider ref="runAsAuthenticationProvider"/>
+        ... другие провайдеры приложения
+    </authentication-manager>
+
+Обялвение сервиса:
+
+    <global-method-security secured-annotations="enabled" run-as-manager-ref="runAsManager"/>
+
+    Посел все методы с аннотацией @Secured, будут обрабатываться runAsManager
+    global-method-security - будет работать только в пределах контектса в веб обычно
+    2 контекста родительский созданный ContextLoaderListener и дочерний toDispatcherServlet, что бы работало и в
+    контроллерах и в бинах, нужно обьявить сразу во двух
+
+    Пример:
+
+
+        @Controller
+        public class TransactionLogController {
+
+          // Требует авторизации под юзером и предостовляет прова аутидора
+         @Secured({"ROLE_REGISTERED_USER","RUN_AS_AUDITOR"})
+         @RequestMapping(value = "/transactions",  method = RequestMethod.GET)
+         @ResponseBody
+         public List<Transaction> getTransactionLog(...) {
+            ...
+         }
+
+    Не работают для @PreAuthorize и @PostAuthorize
+
+Реализация собственной аннтоации для простого обьявление ролей на запрос. На базе текущего механизма
+
+Новый "ран ас" сервис:
+
+public class AnnotationDrivenRunAsManager extends RunAsManagerImpl {
+
+    @Override
+    public Authentication buildRunAs(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
+
+        //Есил нет аннотации выполняеться реализации по умолчанию
+        if(!(object instanceof ReflectiveMethodInvocation) ||
+            ((ReflectiveMethodInvocation)object).getMethod().getAnnotation(RunAsRole.class) == null) {
+            return super.buildRunAs(authentication, object, attributes);
+        }
+
+        /Получить имя роли
+        String roleName = ((ReflectiveMethodInvocation)object).getMethod().getAnnotation(RunAsRole.class).value();
+
+        if (roleName == null || roleName.isEmpty()) {
+            return null;
+        }
+
+        GrantedAuthority runAsAuthority = new SimpleGrantedAuthority(roleName);
+        List<GrantedAuthority> newAuthorities = new ArrayList<GrantedAuthority>();
+
+        // Добавить существующие прова
+        newAuthorities.addAll(authentication.getAuthorities());
+
+        // Новые прова
+        newAuthorities.add(runAsAuthority);
+
+        return new RunAsUserToken(getKey(), authentication.getPrincipal(), authentication.getCredentials(),
+                newAuthorities, authentication.getClass());
+    }
+}
+
+
+аннотация:
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.METHOD)
+    public @interface RunAsRole {
+        String value();
+    }
+
+
+Привер новой реализации метода:
+
+
+     @PreAuthorize("hasRole('ROLE_REGISTERED_USER')")
+     @RunAsRole("ROLE_AUDITOR")
+     @RequestMapping(value = "/transactions",  method = RequestMethod.GET)
+     @ResponseBody
+     public List<Transaction> getTransactionLog(...) {
+      ...
+     {
+

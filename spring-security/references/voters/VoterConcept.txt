@@ -1,0 +1,40 @@
+Концепция AccessDecisionVoter реалезиованна в AccessDecisionManager и влеяет на принятие решение по авторизации
+
+Интерфейс:
+
+    /**
+    * Конкретная реализация возвращает чисто, ( в статических полях )
+    * ACCESS_ABSTAIN - нет точного решения, ACCESS_GRANTED
+    * ACCESS_DENIED - откланенно
+    * ACCESS_GRANTED - подтверржденно
+    */
+    int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attrs);
+
+    boolean supports(ConfigAttribute attribute);
+    boolean supports(Class clazz);
+
+
+Существуют несколько реализации AccessDecisionManager:
+
+ConsensusBased - будет подтверждать или откланять руководствуясь только ACCESS_DENIED или ACCESS_GRANTED,
+AffirmativeBased - в случае если одно или больше ACCESS_GRANTED полученно
+UnanimousBased - проверка на аннонимный  ACCESS_GRANTED всех не ACCESS_ABSTAIN
+
+Так же существует настройка для поведения если все Voters воздержались
+
+
+Реализации Voter:
+
+RoleVoter
+   Наиболее популяреный AccessDecisionVoter - это простой RoleVoter, который использует простый имена ролей для
+   определение доступа конкретного пользователя.
+
+   Доступ будет определен если любой из ConfigAttribute, что начинаеться на ROLE_, будет равен полученному результату
+   из GrantedAuthority. Если нет ниодного ConfigAttribute, то воутер пропустит решение.
+
+AuthenticatedVoter
+    Используеться для разделение меджу зарегистрировнным пользователем и не зарегистрированным (anonymous)
+    Использует IS_AUTHENTICATED_ANONYMOUSLY для доступа ананимуса
+
+Custom Voters
+    Собственные реализации AccessDecisionVoter

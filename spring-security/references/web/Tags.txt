@@ -1,0 +1,123 @@
+Для использование тегов, в JSP нужно обьявить к ним путь
+
+    <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+
+
+Настройка:
+
+Параметры
+    spring.security.disableUISecurity = [false|true]
+    Позволяет отключить работу тегов на страницах
+
+    По умолчанию каждый тег окружон <span class="securityHiddenUI">…</span>, так что убрать можно просто используя
+    css правило для класса, но можно изменить поведение используя настройки:
+
+    spring.security.securedUIPrefix - текст перед тагом
+    spring.security.securedUISuffix - после
+
+
+
+Реализация доступа на странице:
+
+    <sec:authorize access="hasRole('supervisor')">
+
+        This content will only be visible to users who have the "supervisor" authority in their list
+         of <tt>GrantedAuthority</tt>s.
+
+    </sec:authorize>
+
+Проверка прав доступа:
+
+    <sec:authorize access="hasPermission(#domain,'read') or hasPermission(#domain,'write')">
+
+    This content will only be visible to users who have read or write permission to the Object found as a
+     request attribute named "domain".
+
+    </sec:authorize>
+
+
+Проверка по доступу к определенному урлу:
+
+    <sec:authorize url="/admin">
+
+    This content will only be visible to users who are authorized to send requests to the "/admin" URL.
+
+    </sec:authorize>
+
+Для использование этого способа в системе должен быть обьявлен WebInvocationPrivilegeEvaluator, если используеться
+ <http> теги, то один из будет автоматически обьявлен в контексте. Подобный обьект нужен для выполнение фейк запроса
+ на указанную ссылку для получение результата о её доступности
+
+
+Получить доступ к текущему обьекту Authentication
+
+    <sec:authentication  property="principal.username"  />
+
+    Выведит имя текущего принцепала, кончено лучше держать логику авторизации подальше от представления,
+    так что альтернотивно можно получить доступ на стороне контроллера:
+         SecurityContextHolder.getContext().getAuthentication()
+
+
+АСL тег для работы с accesscontrollist (устарел)
+
+    <sec:accesscontrollist hasPermission="1,2" domainObject="${someObject}">
+
+    This will be shown if the user has all of the permissions represented by the values "1" or "2" on the
+     given object.
+
+    </sec:accesscontrollist>
+
+
+Используються для CSRF защиты
+csrfInput и csrfMetaTags
+
+csrfInput - используеться для работы не с <form:from /> т.к там доп. поле автоматически добовляеться к форме, к примеру
+            когда нужно использовать стандартную размету как <form/> (не работает если CSRF не активирован)
+
+         <form method="post" action="/do/something">
+              <sec:csrfInput />
+
+              Name:<br />
+              <input type="text" name="name" />
+
+              ...
+         </form>
+
+
+csrfMetaTags
+    Внедряет CSRF защитные параметры в поля форм и загаловки страницы
+    Полезен для использование вместе с JavaScript опреациями
+
+
+    <sec:csrfMetaTags />
+
+      <script type="text/javascript" language="javascript">
+
+           var csrfParameter = $("meta[name='_csrf_parameter']").attr("content");
+           var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+           var csrfToken = $("meta[name='_csrf']").attr("content");
+
+           // using JQuery to send an x-www-form-urlencoded request
+              var data = {};
+              data[csrfParameter] = csrfToken;
+              data["name"] = "John";
+              ...
+              $.ajax({
+               url: "http://www.example.org/do/something",
+               type: "POST",
+               data: data,
+               ...
+              });
+
+
+              // using JQuery to send a non-x-www-form-urlencoded request
+              var headers = {};
+              headers[csrfHeader] = csrfToken;
+              $.ajax({
+               url: "http://www.example.org/do/something",
+               type: "POST",
+               headers: headers,
+               ...
+              });
+
+        <script>
